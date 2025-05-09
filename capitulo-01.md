@@ -105,7 +105,9 @@ Utilizando uma notação funcional comum, se $S_0, S_1, \dots, S_n$ são sorts (
 >       - Recebe uma `Stack[Element]` e retorna `true` se a pilha estiver vazia, e `false` caso contrário.
 >
 >   **Axioms (Σ<sub>Stack</sub>):**
->   `For all e: Element, s: Stack[Element]:`
+>
+> `For all e: Element, s: Stack[Element]:`
+> 
 >   *   `isEmpty(newStack()) = true`
 >   *   `isEmpty(push(e, s)) = false`
 >   *   `top(push(e, s)) = e`
