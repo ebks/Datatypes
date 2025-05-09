@@ -85,7 +85,7 @@ A **assinatura** (frequentemente denotada por Σ em contextos formais de álgebr
 
 Utilizando uma notação funcional comum, se $S_0, S_1, \dots, S_n$ são sorts (nomes de tipos), uma operação $f$ com $n$ argumentos, onde o $i$-ésimo argumento é do sort $S_i$ e o resultado é do sort $S_0$, é denotada como $f: S_1 \times S_2 \times \dots \times S_n \rightarrow S_0$. Se uma operação não recebe argumentos ($n=0$), ela é uma constante do sort $S_0$, e sua assinatura é denotada $f: \rightarrow S_0$. Estas operações constantes são frequentemente os construtores base de um TAD (e.g., a pilha vazia).
 
->   **Algebraic Specification: ADT `Stack[Element]`**
+>   **SPEC ADT `Stack[Element]`**
 >
 >   **Sorts:**
 >   *   `Stack[Element]` - o sort principal da pilha, parametrizado pelo tipo do elemento `Element`
@@ -105,7 +105,7 @@ Utilizando uma notação funcional comum, se $S_0, S_1, \dots, S_n$ são sorts (
 >       - Recebe uma `Stack[Element]` e retorna `true` se a pilha estiver vazia, e `false` caso contrário.
 >
 >   **Axioms (Σ<sub>Stack</sub>):**
->   * `For all e: Element, s: Stack[Element]:`
+>   `For all e: Element, s: Stack[Element]:`
 >   *   `isEmpty(newStack()) = true`
 >   *   `isEmpty(push(e, s)) = false`
 >   *   `top(push(e, s)) = e`
