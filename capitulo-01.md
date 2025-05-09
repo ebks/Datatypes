@@ -1,3 +1,6 @@
+Entendido. Os comentários explicativos para cada operação na assinatura das especificações algébricas (que já estão em inglês) não devem estar entre parênteses. Eles podem seguir a declaração da operação, talvez separados por um hífen ou simplesmente como uma frase descritiva.
+
+Vou aplicar essa alteração ao exemplo da especificação do TAD `Stack[Element]` dentro do Capítulo 1 (Seção 1.2.1) e continuar a partir daí, mantendo todas as outras diretrizes.
 
 ---
 
@@ -154,9 +157,9 @@ Considere um Tipo Abstrato de Dados `CalendarDate` para representar datas (dia, 
 Se um cliente do TAD `CalendarDate` tivesse acesso direto e irrestrito à sua representação interna (por exemplo, atributos públicos `day_int`, `month_int`, `year_int` em um objeto Python), diversos riscos e desvantagens significativas surgiriam, comprometendo fundamentalmente os benefícios da abstração e do encapsulamento:
 
 1.  **Quebra de Invariantes e Corrupção de Estado:** O TAD `CalendarDate`, para ser útil e correto, implicitamente ou explicitamente mantém certos **invariantes de tipo**. Estes são propriedades que devem ser verdadeiras para qualquer instância válida do tipo. Por exemplo:
-    *   $1 \le month\_int \le 12$.
-    *   $1 \le day\_int \le daysInMonth(month\_int,year\_int)$ (onde `daysInMonth` é uma função que considera anos bissextos).
-    *   $year\_int$ deve estar dentro de um intervalo razoável (e.g., não negativo, ou dentro de limites práticos).
+    *   1 $\le$ `month_int` $\le$ 12.
+    *   $1 $\le$ `day_int` $\le$ `daysInMonth(month_int, year_int)` (onde `daysInMonth` é uma função que considera anos bissextos).
+    *   `year_int` deve estar dentro de um intervalo razoável (e.g., não negativo, ou dentro de limites práticos).
     A operação construtora `createDate(d, m, y)` seria responsável por garantir que apenas datas que satisfazem esses invariantes sejam criadas (e.g., ela rejeitaria a criação de "31 de Fevereiro" ou "dia 0 de Março"). Se o cliente pode modificar `day_int`, `month_int` e `year_int` diretamente após a criação de um objeto `CalendarDate` válido, ele pode facilmente colocar o objeto em um estado inválido (e.g., `date_obj.day_int = 32`), violando os invariantes do tipo. Isso torna o objeto `CalendarDate` corrompido e seu comportamento subsequente imprevisível.
 2.  **Aumento Significativo do Acoplamento:** O código cliente se tornaria diretamente dependente da escolha específica da representação interna (`day_int`, `month_int`, `year_int`). Se os desenvolvedores do TAD `CalendarDate` decidissem, no futuro, mudar a representação interna – por exemplo, para armazenar a data como um único número de dias desde uma data `epoch` (como o Dia Juliano, para facilitar cálculos de diferença entre datas), ou para usar uma biblioteca de datas de terceiros mais otimizada internamente, ou mesmo para adicionar um campo `timezone` – todo o código cliente que acessava diretamente os campos `day_int`, `month_int`, `year_int` quebraria e precisaria ser localizado, entendido e modificado. Isso viola o princípio de que mudanças na implementação não devem afetar os clientes.
 3.  **Dificuldade Extrema de Manutenção e Evolução:** Como consequência do acoplamento aumentado, a manutenção do sistema se torna um pesadelo. Qualquer alteração na representação interna do `CalendarDate` exigiria uma busca e modificação potencialmente vasta em todo o código base que o utiliza. A evolução do TAD `CalendarDate` para adicionar novas funcionalidades (e.g., `dayOfWeek()`, `addDays(n)`) ou para otimizar as existentes seria severamente dificultada pelo medo de quebrar código cliente que depende dos detalhes internos.
@@ -301,32 +304,31 @@ A combinação sinérgica de (1) **especificação algébrica formal** (para def
 ---
 ## REFERÊNCIAS BIBLIOGRÁFICAS
 
-DIJKSTRA, E. W. **The Structure of the "THE"-Multiprogramming System.** *Communications of the ACM*, vol. 11, no. 5, pp. 341-346, May 1968.
-*   *Resumo: Artigo clássico onde Dijkstra descreve a arquitetura em camadas do sistema operacional THE. Este trabalho é fundamental para a compreensão do uso de níveis de abstração na gestão da complexidade de sistemas de software.*
+1.  DIJKSTRA, E. W. **The Structure of the "THE"-Multiprogramming System.** *Communications of the ACM*, vol. 11, no. 5, pp. 341-346, May 1968.
+    *   *Resumo: Artigo clássico onde Dijkstra descreve a arquitetura em camadas do sistema operacional THE. Este trabalho é fundamental para a compreensão do uso de níveis de abstração na gestão da complexidade de sistemas de software.*
 
-GUTTAG, J. V. **Abstract Data Types and the Development of Data Structures.** *Communications of the ACM*, vol. 20, no. 6, pp. 396-404, June 1977.
-*   *Resumo: Artigo seminal de John Guttag que introduziu e popularizou o conceito de Tipos Abstratos de Dados e sua especificação algébrica. Embora clássico, é fundamental para entender as origens da abordagem deste livro.*
+2.  GUTTAG, J. V. **Abstract Data Types and the Development of Data Structures.** *Communications of the ACM*, vol. 20, no. 6, pp. 396-404, June 1977.
+    *   *Resumo: Artigo seminal de John Guttag que introduziu e popularizou o conceito de Tipos Abstratos de Dados e sua especificação algébrica. Embora clássico, é fundamental para entender as origens da abordagem deste livro.*
 
-HOARE, C. A. R. **An axiomatic basis for computer programming.** *Communications of the ACM*, vol. 12, no. 10, pp. 576-580, Oct. 1969.
-*   *Resumo: Trabalho fundamental que introduziu a Lógica de Hoare para raciocinar sobre a corretude de programas. Embora diferente da especificação algébrica, compartilha o objetivo de trazer rigor matemático à programação.*
+3.  HOARE, C. A. R. **An axiomatic basis for computer programming.** *Communications of the ACM*, vol. 12, no. 10, pp. 576-580, Oct. 1969.
+    *   *Resumo: Trabalho fundamental que introduziu a Lógica de Hoare para raciocinar sobre a corretude de programas. Embora diferente da especificação algébrica, compartilha o objetivo de trazer rigor matemático à programação.*
 
-LISKOV, B.; GUTTAG, J. V. **Abstraction and Specification in Program Development.** Cambridge, MA: MIT Press, 1986.
-*   *Resumo: Um livro clássico que expande os conceitos de abstração de dados e especificação, co-autoriado por pioneiros na área. Oferece uma base sólida sobre como pensar e projetar software utilizando TADs, com foco na linguagem CLU.*
+4.  LISKOV, B.; GUTTAG, J. V. **Abstraction and Specification in Program Development.** Cambridge, MA: MIT Press, 1986.
+    *   *Resumo: Um livro clássico que expande os conceitos de abstração de dados e especificação, co-autoriado por pioneiros na área. Oferece uma base sólida sobre como pensar e projetar software utilizando TADs, com foco na linguagem CLU.*
 
-MACIVER, D. R.; STRINGFIELD, R.; WOUDA, J. et al. **Hypothesis: A new approach to property-based testing.** *Hypothesis documentation*. Disponível em: <https://hypothesis.readthedocs.io/>. Acesso em: [data do acesso].
-*   *Resumo: A documentação oficial da biblioteca Hypothesis, que serve como a principal referência para seu uso, estratégias de geração de dados e funcionalidades avançadas. Essencial para a implementação de testes baseados em propriedades em Python.*
+5.  MACIVER, D. R.; STRINGFIELD, R.; WOUDA, J. et al. **Hypothesis: A new approach to property-based testing.** *Hypothesis documentation*. Disponível em: <https://hypothesis.readthedocs.io/>. Acesso em: [data do acesso].
+    *   *Resumo: A documentação oficial da biblioteca Hypothesis, que serve como a principal referência para seu uso, estratégias de geração de dados e funcionalidades avançadas. Essencial para a implementação de testes baseados em propriedades em Python.*
 
-MYPY TEAM. **MyPy - Static Typing for Python.** MyPy documentation. Disponível em: <http://mypy-lang.org/>. Acesso em: [data do acesso].
-*   *Resumo: O site oficial e documentação do MyPy, o verificador de tipos estático para Python. Contém guias, referências da sintaxe de anotações de tipo e informações sobre a configuração e uso da ferramenta.*
+6.  MYPY TEAM. **MyPy - Static Typing for Python.** MyPy documentation. Disponível em: <http://mypy-lang.org/>. Acesso em: [data do acesso].
+    *   *Resumo: O site oficial e documentação do MyPy, o verificador de tipos estático para Python. Contém guias, referências da sintaxe de anotações de tipo e informações sobre a configuração e uso da ferramenta.*
 
-PARNAS, D. L. **On the Criteria To Be Used in Decomposing Systems into Modules.** *Communications of the ACM*, vol. 15, no. 12, pp. 1053-1058, Dec. 1972.
-*   *Resumo: Artigo clássico de David Parnas que introduziu o princípio da ocultação de informação (`information hiding`) como um critério fundamental para a modularização de software, diretamente relevante para o design de TADs e a separação entre interface e implementação.*
+7.  PARNAS, D. L. **On the Criteria To Be Used in Decomposing Systems into Modules.** *Communications of the ACM*, vol. 15, no. 12, pp. 1053-1058, Dec. 1972.
+    *   *Resumo: Artigo clássico de David Parnas que introduziu o princípio da ocultação de informação (`information hiding`) como um critério fundamental para a modularização de software, diretamente relevante para o design de TADs e a separação entre interface e implementação.*
 
-PYTHON SOFTWARE FOUNDATION. **PEP 20 – The Zen of Python.** Python.org. Disponível em: <https://peps.python.org/pep-0020/>. Acesso em: [data do acesso].
-*   *Resumo: Apresenta os princípios de design que guiam a filosofia da linguagem Python, como "Readability counts". Útil para entender o contexto cultural da linguagem.*
+8.  PYTHON SOFTWARE FOUNDATION. **PEP 20 – The Zen of Python.** Python.org. Disponível em: <https://peps.python.org/pep-0020/>. Acesso em: [data do acesso].
+    *   *Resumo: Apresenta os princípios de design que guiam a filosofia da linguagem Python, como "Readability counts". Útil para entender o contexto cultural da linguagem.*
 
-PYTHON SOFTWARE FOUNDATION. **PEP 484 – Type Hints.** Python.org. Disponível em: <https://peps.python.org/pep-0484/>. Acesso em: [data do acesso].
-*   *Resumo: A Proposta de Melhoria do Python (PEP) que introduziu oficialmente as anotações de tipo na linguagem, formando a base para ferramentas de verificação estática como MyPy. Essencial para entender a abordagem de tipagem em Python usada no livro.*
+9.  PYTHON SOFTWARE FOUNDATION. **PEP 484 – Type Hints.** Python.org. Disponível em: <https://peps.python.org/pep-0484/>. Acesso em: [data do acesso].
+    *   *Resumo: A Proposta de Melhoria do Python (PEP) que introduziu oficialmente as anotações de tipo na linguagem, formando a base para ferramentas de verificação estática como MyPy. Essencial para entender a abordagem de tipagem em Python usada no livro.*
 
 ---
-
