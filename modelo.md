@@ -42,7 +42,7 @@ Sempre indicar 6 referências (livros ou artigos) no fomado ABNT, com datas supe
 As referências devem seguir o formato ABNT e serem ordenadas em ordem alfabética. O fato de cada referência deve ser o seguinte:
 
 Referência no formato ABNT
-*   *Resumo: resumo de três linhas, indicando o que é a referência *
+*   *Resumo: resumo de três linhas, indicando o que é a referência*
 
 Terminar a seção de referências com um traço.
 ---
