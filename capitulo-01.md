@@ -301,9 +301,6 @@ A combinação sinérgica de (1) **especificação algébrica formal** (para def
 ---
 ## REFERÊNCIAS BIBLIOGRÁFICAS
 
----
-## REFERÊNCIAS BIBLIOGRÁFICAS
-
 DIJKSTRA, E. W. **The Structure of the "THE"-Multiprogramming System.** *Communications of the ACM*, vol. 11, no. 5, pp. 341-346, May 1968.
 *   *Resumo: Artigo clássico onde Dijkstra descreve a arquitetura em camadas do sistema operacional THE. Este trabalho é fundamental para a compreensão do uso de níveis de abstração na gestão da complexidade de sistemas de software.*
 
