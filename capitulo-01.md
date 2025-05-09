@@ -1,3 +1,4 @@
+
 ---
 
 # CAPÍTULO 1
@@ -65,8 +66,6 @@ Conforme introduzido, um Tipo Abstrato de Dados (TAD) é uma especificação mat
 > 1.  Um ou mais **sorts** (ou tipos) de dados, que definem os domínios dos valores.
 > 2.  Um conjunto de **operações** (assinatura) definidas sobre esses sorts, especificando seus nomes, os sorts de seus argumentos (domínio) e o sort de seu resultado (contradomínio).
 > 3.  Um conjunto de **axiomas** ou **pré/pós-condições** que especificam as propriedades semânticas das operações, ou seja, seu comportamento e como elas se relacionam entre si.
->
-> *(Este bloco representa a formatação destacada para definições, que seria idealmente uma caixa hachurada ou com bordas distintas na renderização final.)*
 
 O objetivo de um TAD é capturar a essência de um tipo de dado, fornecendo uma interface clara e precisa para os seus usuários (outras partes do software), enquanto oculta os detalhes internos de sua realização.
 
@@ -131,8 +130,6 @@ Se um Tipo Abstrato de Dados (TAD) define o *quê* (a interface e o comportament
 > **Definição 1.2: Estrutura de Dados**
 >
 > Uma Estrutura de Dados é uma coleção de valores de dados, as relações entre eles, e as funções ou operações que podem ser aplicadas aos dados. É uma forma concreta de organizar dados na memória do computador para permitir a implementação eficiente das operações de um Tipo Abstrato de Dados.
->
-> *(Este bloco representa a formatação destacada para definições.)*
 
 Exemplos comuns de estruturas de dados incluem arrays (vetores), listas encadeadas (simplesmente, duplamente, circularmente), árvores (binárias, de busca, balanceadas), tabelas de espalhamento (`hash tables`), grafos, e as próprias pilhas e filas quando consideradas em sua forma implementada.
 
@@ -226,8 +223,8 @@ b) **Axioma relacionando `dequeue(enqueue(e, newQ))`:**
 
     (Nota: Especificar completamente o TAD `Queue` algebricamente, especialmente as interações de `dequeue` e `front` com `enqueue` em filas não vazias, requer axiomas mais elaborados para capturar corretamente a semântica FIFO, como será explorado em capítulos posteriores.)
 
----
 
+---
 ## REFERÊNCIAS BIBLIOGRÁFICAS
 
 1.  GUTTAG, John V.; HORNING, James J. **Larch: Languages and Tools for Formal Specification.** Springer-Verlag, 1993. (ISBN 978-0387940064)
@@ -249,5 +246,3 @@ b) **Axioma relacionando `dequeue(enqueue(e, newQ))`:**
     *   *Resumo: Um dos primeiros livros dedicados inteiramente à especificação algébrica de software. Fornece uma introdução clara aos conceitos de assinaturas, axiomas, álgebras iniciais e finais, e mecanismos de estruturação de especificações. Excelente para os fundamentos teóricos.*
 
 ---
-
-A estrutura de numeração das seções foi ajustada conforme solicitado.
