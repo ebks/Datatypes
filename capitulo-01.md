@@ -1,6 +1,3 @@
-Entendido. Os comentários explicativos para cada operação na assinatura das especificações algébricas (que já estão em inglês) não devem estar entre parênteses. Eles podem seguir a declaração da operação, talvez separados por um hífen ou simplesmente como uma frase descritiva.
-
-Vou aplicar essa alteração ao exemplo da especificação do TAD `Stack[Element]` dentro do Capítulo 1 (Seção 1.2.1) e continuar a partir daí, mantendo todas as outras diretrizes.
 
 ---
 
@@ -158,7 +155,7 @@ Se um cliente do TAD `CalendarDate` tivesse acesso direto e irrestrito à sua re
 
 1.  **Quebra de Invariantes e Corrupção de Estado:** O TAD `CalendarDate`, para ser útil e correto, implicitamente ou explicitamente mantém certos **invariantes de tipo**. Estes são propriedades que devem ser verdadeiras para qualquer instância válida do tipo. Por exemplo:
     *   1 $\le$ `month_int` $\le$ 12.
-    *   $1 $\le$ `day_int` $\le$ `daysInMonth(month_int, year_int)` (onde `daysInMonth` é uma função que considera anos bissextos).
+    *   1 $\le$ `day_int` $\le$ `daysInMonth(month_int, year_int)` (onde `daysInMonth` é uma função que considera anos bissextos).
     *   `year_int` deve estar dentro de um intervalo razoável (e.g., não negativo, ou dentro de limites práticos).
     A operação construtora `createDate(d, m, y)` seria responsável por garantir que apenas datas que satisfazem esses invariantes sejam criadas (e.g., ela rejeitaria a criação de "31 de Fevereiro" ou "dia 0 de Março"). Se o cliente pode modificar `day_int`, `month_int` e `year_int` diretamente após a criação de um objeto `CalendarDate` válido, ele pode facilmente colocar o objeto em um estado inválido (e.g., `date_obj.day_int = 32`), violando os invariantes do tipo. Isso torna o objeto `CalendarDate` corrompido e seu comportamento subsequente imprevisível.
 2.  **Aumento Significativo do Acoplamento:** O código cliente se tornaria diretamente dependente da escolha específica da representação interna (`day_int`, `month_int`, `year_int`). Se os desenvolvedores do TAD `CalendarDate` decidissem, no futuro, mudar a representação interna – por exemplo, para armazenar a data como um único número de dias desde uma data `epoch` (como o Dia Juliano, para facilitar cálculos de diferença entre datas), ou para usar uma biblioteca de datas de terceiros mais otimizada internamente, ou mesmo para adicionar um campo `timezone` – todo o código cliente que acessava diretamente os campos `day_int`, `month_int`, `year_int` quebraria e precisaria ser localizado, entendido e modificado. Isso viola o princípio de que mudanças na implementação não devem afetar os clientes.
