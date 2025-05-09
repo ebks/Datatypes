@@ -102,14 +102,14 @@ Utilizando uma notação funcional comum, se $S_0, S_1, \dots, S_n$ são sorts (
 >   *   `top: Stack[Element]` $\rightarrow$ `Element`
 >       - Recebe uma `Stack[Element]` e retorna o `Element` que está no topo, sem modificar a pilha. Esta operação é parcial; sua pré-condição é que a pilha não esteja vazia.
 >   *   `isEmpty: Stack[Element]` $\rightarrow$ `Boolean`
->       - Recebe uma `Stack[Element]` e retorna `$true$` se a pilha estiver vazia, e `$false$` caso contrário.
+>       - Recebe uma `Stack[Element]` e retorna `true` se a pilha estiver vazia, e `false` caso contrário.
 >
->   **Axioms (E<sub>Stack</sub>):**
->   *For all $e: Element$, $s: Stack[Element]$:*
->   *   `isEmpty(newStack()) = $true$`
->   *   `isEmpty(push(e, s)) = $false$`
->   *   `top(push(e, s)) = $e$`
->   *   `pop(push(e, s)) = $s$`
+>   **Axioms (Σ<sub>Stack</sub>):**
+>   * `For all e: Element, s: Stack[Element]:`
+>   *   `isEmpty(newStack()) = true`
+>   *   `isEmpty(push(e, s)) = false`
+>   *   `top(push(e, s)) = e`
+>   *   `pop(push(e, s)) = s`
 >
 >   *Nota sobre operações parciais: Os axiomas para `pop` e `top` são definidos aqui em termos do que acontece após uma operação `push` (um construtor). O comportamento de `pop(newStack())` e `top(newStack())` não é diretamente definido por este conjunto de axiomas construtivos, implicando que estas são operações parciais cuja aplicação a uma pilha vazia é indefinida neste contexto. Abordagens para lidar com operações parciais em especificações e implementações serão discutidas em capítulos subsequentes, incluindo o uso de pré-condições explícitas, valores de erro, ou tipos opcionais como `Maybe[Element]`.*
 
