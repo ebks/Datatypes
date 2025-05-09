@@ -7,7 +7,7 @@
 
 ---
 
-![tipo.png](tipo.png)
+
 
 A jornada na construção de software robusto e confiável é intrinsecamente ligada à nossa capacidade de gerenciar a complexidade. Este capítulo inaugural lança as bases para tal empreendimento, dissecando o conceito primordial da abstração e seu papel ubíquo na Ciência da Computação. Exploraremos como a abstração não é meramente uma conveniência, mas uma necessidade fundamental que permeia desde o design de hardware até o desenvolvimento de aplicações de larga escala. A partir dessa compreensão, mergulharemos na distinção crucial entre Tipos Abstratos de Dados (TADs) – entidades conceituais que definem comportamento – e Estruturas de Dados (`Data Structures`) – suas manifestações concretas. A discussão se aprofundará na problemática da especificação precisa desses TADs, contrastando a fragilidade de métodos informais com a solidez prometida por abordagens formais, com particular ênfase na especificação algébrica, que será uma espinha dorsal deste texto. Finalmente, o capítulo situará esses desafios e aspirações no contexto da linguagem Python, reconhecendo sua expressividade e popularidade, mas também ponderando sobre como suas características dinâmicas podem ser complementadas por ferramentas como tipagem estática e teste baseado em propriedades para alcançar um novo patamar de rigor e corretude.
 
