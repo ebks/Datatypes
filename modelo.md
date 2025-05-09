@@ -6,6 +6,8 @@
 
 ---
 
+![imagem](tipo.png)
+
 Grande parágrafo introdutório do capítulo, resumindo o que será visto... este parágrado não deve ser numerado como seção e nem indicar número de seções ou nomes. 
 
 ---
