@@ -1,8 +1,3 @@
-Você está absolutamente correto! Peço desculpas pela omissão. Na minha tentativa de focar na correção da formatação das especificações e na expansão do conteúdo principal, acabei não incluindo os blocos de "Exercício" e "Resolução do Exercício" no Capítulo 2, como havíamos estabelecido no modelo.
-
-Vamos corrigir isso. Vou adicionar alguns exercícios relevantes ao conteúdo do Capítulo 2, com suas respectivas resoluções, seguindo o formato que definimos.
-
-Aqui está o Capítulo 2 novamente, agora com a inclusão de exercícios e suas resoluções.
 
 ---
 
@@ -12,368 +7,403 @@ Aqui está o Capítulo 2 novamente, agora com a inclusão de exercícios e suas 
 
 ---
 
-![tipo.png](tipo.png)
+![Diagrama conceitual de uma Σ-Álgebra](tipo.png)
 
-Após estabelecermos a importância da abstração e a distinção entre Tipos Abstratos de Dados (TADs) e suas implementações concretas através de estruturas de dados, este capítulo mergulha no formalismo da especificação algébrica. Esta abordagem oferece um método rigoroso e matemático para definir o comportamento dos TADs de forma independente de qualquer representação particular. Iniciaremos com os fundamentos da lógica equacional e das álgebras multissortidas, introduzindo os conceitos de sorts, operações e assinaturas, que formam a base sintática das especificações. Em seguida, exploraremos como os axiomas, na forma de equações, são utilizados para definir a semântica das operações, estabelecendo as propriedades que governam o comportamento do TAD. A noção de Σ-álgebra será apresentada como o arcabouço semântico para interpretar essas especificações. Distinguiremos entre diferentes papéis funcionais das operações – construtores, observadores e modificadores – e ilustraremos a construção de especificações algébricas através de exemplos fundamentais como `Boolean`, `Natural` e `Integer`, aplicando o formato de especificação detalhado.
+Após estabelecermos a importância da abstração de dados e a necessidade de especificações formais no capítulo anterior, este capítulo mergulha profundamente no coração da abordagem algébrica para a definição de Tipos Abstratos de Dados (TADs). Exploraremos os fundamentos da lógica equacional e das álgebras multissortidas, que fornecem o arcabouço matemático para esta técnica. Detalharemos os componentes cruciais de uma especificação algébrica: sorts, que definem os tipos de dados; assinaturas, que declaram as operações; e axiomas equacionais, que prescrevem o comportamento dessas operações. Investigaremos a semântica formal dessas especificações através do conceito de Σ-álgebras, que são as estruturas matemáticas que servem como modelos para um TAD. Distinguiremos entre diferentes tipos de operações, como construtores e observadores, e ilustraremos a teoria com exemplos fundamentais, incluindo a especificação de `Boolean`, `Natural` (baseado nos axiomas de Peano) e `Integer`. Ao final deste capítulo, o leitor terá uma compreensão sólida dos mecanismos formais para definir TADs algebricamente, preparando o caminho para análises mais avançadas de corretude, completeza e para a aplicação desses conceitos na construção e verificação de software.
 
 ---
 
-**2.1 Introdução à Lógica Equacional e Álgebras Multissortidas**
+## 2.1 Introdução à Lógica Equacional e Álgebras Multissortidas
 
-A especificação algébrica de Tipos Abstratos de Dados (TADs) fundamenta-se em conceitos oriundos da álgebra universal e da lógica equacional. Esta abordagem permite definir tipos de dados como estruturas algébricas, onde os "valores" do tipo são elementos de certos conjuntos (chamados *sorts* ou *portadores*), e as "operações" do tipo são funções sobre esses conjuntos. A característica distintiva é que o comportamento dessas operações é descrito por um conjunto de axiomas, tipicamente na forma de equações, que devem ser válidas em qualquer modelo correto do TAD.
+A especificação algébrica de Tipos Abstratos de Dados (TADs) é fundamentada na lógica equacional e na teoria das álgebras universais, mais especificamente, álgebras multissortidas. A lógica equacional é um sistema formal para raciocinar sobre igualdade. Uma álgebra multissortida, por sua vez, é uma estrutura matemática que consiste em múltiplos conjuntos de elementos (chamados *sorts* ou *portadores*) e um conjunto de operações definidas sobre esses sorts. Esta combinação nos permite definir TADs de uma maneira puramente sintática (através de assinaturas e axiomas) e, subsequentemente, interpretar essa definição semanticamente através de estruturas algébricas que satisfazem os axiomas.
 
-A necessidade de uma abordagem "multissortida" (do inglês, *many-sorted*) surge naturalmente ao se modelar TADs. Em muitos casos, um TAD não opera sobre um único tipo de valor, mas interage com ou é composto por valores de diferentes tipos. Por exemplo, uma pilha de inteiros (`Stack[Integer]`) envolve o sort `Stack[Integer]` (o tipo da pilha em si), o sort `Integer` (o tipo dos elementos armazenados) e, possivelmente, o sort `Boolean` (para operações como `isEmpty`). Uma álgebra multissortida generaliza a noção de álgebra (que tradicionalmente opera sobre um único conjunto portador) para lidar com uma família de conjuntos portadores, um para cada sort, e operações que podem ter argumentos e resultados de sorts diferentes dentro dessa família.
+**Sorts, Operações e Assinaturas (Σ-Signatures)**
 
-**2.1.1 Sorts, Operações e Assinaturas (Σ-Signatures)**
+No contexto da especificação algébrica, um **sort** (plural: sorts) é um nome que representa um tipo de dado ou um domínio de valores. Por exemplo, em uma especificação de números naturais, `Natural` seria um sort; em uma especificação de pilhas, `Stack` e `Elem` (para os elementos da pilha) seriam sorts. A utilização de múltiplos sorts (daí o termo "multissortida") é essencial para modelar TADs que envolvem diferentes tipos de dados interagindo entre si.
 
-A base sintática de uma especificação algébrica é a **assinatura**, denotada frequentemente por Σ (Sigma). Uma assinatura multissortida Σ consiste em:
+Uma **operação** (ou função símbolo) é definida em termos dos sorts de seus argumentos (seu *domínio* ou *aridade*) e o sort de seu resultado (seu *contradomínio* ou *tipo de resultado*). Uma operação que não possui argumentos é chamada de **constante**. Por exemplo, a operação `zero` que representa o número natural 0 pode ser definida como uma constante do sort `Natural`. A operação `suc` que pega um `Natural` e retorna o próximo `Natural` é uma operação unária. A operação `add` que pega dois `Naturais` e retorna um `Natural` é uma operação binária.
 
-1.  **Um conjunto $S$ de nomes de sorts:** Cada $s \in S$ é um identificador para um tipo de dado. Por exemplo, $S = \{$ `Boolean`, `Nat`, `List[Nat]` $\}$. Os sorts podem ser parametrizados, como `List[X]`, onde `X` é um parâmetro de sort.
-2.  **Um conjunto $F$ de nomes de operações (ou símbolos de função):** Para cada $f \in F$, a assinatura especifica seu **perfil** ou **aridade funcional**, که indica os sorts de seus argumentos e o sort de seu resultado. Se uma operação `f` recebe $n$ argumentos dos sorts `s₁`, `s₂`, ..., `sₙ` $\in S$ e retorna um valor do sort `s₀` $\in S$, seu perfil é escrito como `` `f`: `s₁` $\times$ `s₂` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` ``.
-    *   Se $n=0$, a operação `` `f`: $\rightarrow$ `s₀` `` é uma **constante** do sort `s₀`. Essas constantes são fundamentais, pois frequentemente representam os valores básicos ou iniciais de um TAD (e.g., `` `true`: $\rightarrow$ `Boolean` ``, `` `zero`: $\rightarrow$ `Nat` ``, `` `emptyList`: $\rightarrow$ `List[X]` ``).
+Uma **assinatura multissortida (Σ-Signature)**, denotada por Σ, é um par $(S, \Omega)$ onde $S$ é um conjunto de nomes de sorts e $\Omega$ é uma família de conjuntos de símbolos de operações indexados por seus perfis de aridade e tipo. Formalmente, para cada $s_1, \ldots, s_n \in S$ (com $n \ge 0$) e $s \in S$, $\Omega_{s_1 \ldots s_n, s}$ é o conjunto de símbolos de operações que tomam $n$ argumentos dos sorts $s_1, \ldots, s_n$ respectivamente, e produzem um resultado do sort $s$. Se $n=0$, a operação é uma constante do sort $s$.
 
->   **Definição 2.1: Assinatura Multissortida (Σ-Signature)**
+Por exemplo, uma assinatura para números naturais (Peano), que também utilizaria o sort `Boolean` para algumas operações observadoras, poderia ser parcialmente descrita da seguinte forma:
+
+> **Signature (Exemplo para `Natural` e `Boolean`)**
 >
->   Uma assinatura multissortida Σ é um par $(S, F)$, onde:
->   1.  $S$ é um conjunto de símbolos chamados **sorts**.
->   2.  $F$ é um conjunto de símbolos de operação, onde cada `f` $\in F$ está associado a um perfil `` (`s₁` `s₂` ... `sₙ`, `s₀`) ``, com `sᵢ` $\in S$ ($1 \le i \le n$) e `s₀` $\in S$. Escrevemos isso como `` `f`: `s₁` $\times$ `s₂` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` ``. O inteiro $n \ge 0$ é a aridade de `f`. Se $n=0$, `f` é um símbolo de constante de sort `s₀`.
+> **Sorts (parcial):**
+> *   `Natural`
+> *   `Boolean`
+>
+> **Operations (parcial - Σ<sub>Natural_Example</sub>):**
+> *   `zero:` $\rightarrow$ `Natural`
+>     - Representa o número natural zero.
+> *   `suc:` `Natural` $\rightarrow$ `Natural`
+>     - Representa a função sucessor.
+> *   `add:` `Natural` $\times$ `Natural` $\rightarrow$ `Natural`
+>     - Representa a adição de números naturais.
+> *   `isZero:` `Natural` $\rightarrow$ `Boolean`
+>     - Verifica se um número natural é zero.
+> *   (*...e operações para `Boolean` como `true`, `false`, `not`, etc.*)
 
-Por exemplo, uma assinatura simples para números naturais com zero, sucessor e adição poderia ser:
-*   $S = \{$ `Nat` $\}$
-*   $F = \{$ `` `zero`: $\rightarrow$ `Nat` ``, `` `suc`: `Nat` $\rightarrow$ `Nat` ``, `` `add`: `Nat` $\times$ `Nat` $\rightarrow$ `Nat` `` $\}$
+Esta estrutura formal de sorts e operações definidas por uma assinatura Σ estabelece o vocabulário sintático básico para construir termos e, subsequentemente, axiomas.
 
-Esta assinatura estabelece o vocabulário com o qual podemos construir expressões (termos) sobre os sorts definidos. Ela não diz nada, ainda, sobre o *significado* ou *comportamento* dessas operações; isso será papel dos axiomas.
+**Termos sobre uma Assinatura (T<sub>Σ</sub>(X)). Variáveis e Termos Fundamentais (`Ground Terms`)**
 
-**2.1.2 Termos sobre uma Assinatura (T<sub>Σ</sub>(X)). Variáveis e Termos Fundamentais (Ground Terms)**
+Dado uma Σ-assinatura e um conjunto $X$ de variáveis (onde cada variável $x \in X$ tem um sort associado $s \in S$), podemos definir o conjunto de **termos sobre Σ com variáveis em X**, denotado $T_{\Sigma}(X)$. Um termo é uma expressão construída recursivamente usando os símbolos de operação da assinatura e as variáveis:
 
-Dada uma assinatura Σ = $(S, F)$ e um conjunto $X$ de variáveis (onde cada variável `x` $\in X$ também possui um sort `s` $\in S$ associado, frequentemente escrito como $X_s$ para o conjunto de variáveis de sort `s`), podemos definir indutivamente o conjunto de **termos bem formados** sobre Σ com variáveis em $X$, denotado $T_{\Sigma}(X)$. Para cada sort `s` $\in S$, $T_{\Sigma, s}(X)$ denota o conjunto de termos de sort `s`.
+1.  Toda variável $x \in X$ do sort $s$ é um termo do sort $s$.
+2.  Se $f: s_1 \times \ldots \times s_n \rightarrow s$ é um símbolo de operação em Σ (se $n=0$, $f$ é uma constante) e $t_1, \ldots, t_n$ são termos dos sorts $s_1, \ldots, s_n$ respectivamente, então $f(t_1, \ldots, t_n)$ é um termo do sort $s$.
 
-A construção dos termos é a seguinte:
-1.  **Base:**
-    *   Toda variável `x` $\in X_s$ é um termo de sort `s` (i.e., `x` $\in T_{\Sigma, s}(X)$).
-    *   Toda constante `` `c`: $\rightarrow$ `s` `` na assinatura (i.e., `c` $\in F$ com aridade 0 e sort resultado `s`) é um termo de sort `s` (i.e., `c` $\in T_{\Sigma, s}(X)$).
-2.  **Passo Indutivo:**
-    *   Se `` `f`: `s₁` $\times$ `s₂` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` `` é um símbolo de operação em $F$ (com $n > 0$), e `t₁`, `t₂`, ..., `tₙ` são termos tais que `tᵢ` $\in T_{\Sigma, s_i}(X)$ para cada $i=1, \dots, n$, então a expressão `` `f`(`t₁`, `t₂`, ..., `tₙ`) `` é um termo de sort `s₀` (i.e., `` `f`(`t₁`, `t₂`, ..., `tₙ`) `` $\in T_{\Sigma, s_0}(X)$).
+Se o conjunto de variáveis $X$ é vazio ($X = \emptyset$), os termos resultantes são chamados de **termos fundamentais (`ground terms`)** ou termos fechados, denotados $T_{\Sigma}$. Estes são termos que não contêm variáveis; eles representam todos os valores concretos que podem ser construídos usando apenas as operações da assinatura.
 
-Se o conjunto de variáveis $X$ é vazio ($X = \emptyset$), os termos resultantes são chamados de **termos fundamentais** (`ground terms`), e o conjunto é denotado $T_{\Sigma}$. Termos fundamentais são aqueles construídos exclusivamente a partir de constantes e operações da assinatura, sem nenhuma variável livre. Eles representam os "valores concretos" que podem ser construídos dentro da especificação.
+Por exemplo, usando a assinatura de `Natural` simplificada com `zero` e `suc`:
+*   `zero` é um termo fundamental do sort `Natural`.
+*   `suc(zero)` é um termo fundamental do sort `Natural`.
+*   `suc(suc(zero))` é um termo fundamental do sort `Natural`.
+Se tivermos uma variável $n$ do sort `Natural`, então:
+*   $n$ é um termo (não fundamental) do sort `Natural`.
+*   `suc(n)` é um termo (não fundamental) do sort `Natural`.
+Se `add` está na assinatura, então o termo `add(suc(zero), n)` é um termo (não fundamental) do sort `Natural`.
 
-Continuando com o exemplo da assinatura para `Nat`:
-*   `zero` é um termo fundamental de sort `Nat`.
-*   `suc(zero)` é um termo fundamental de sort `Nat`.
-*   `add(suc(zero), zero)` é um termo fundamental de sort `Nat`.
-Se tivéssemos uma variável `n: Nat`, então:
-*   `n` é um termo (não fundamental) de sort `Nat`.
-*   `suc(n)` é um termo (não fundamental) de sort `Nat`.
-*   `add(n, suc(zero))` é um termo (não fundamental) de sort `Nat`.
+Os termos são as "expressões" ou "programas" que podemos escrever na linguagem definida pela assinatura. Os termos fundamentais são particularmente importantes, pois representam os valores canônicos do tipo de dado que está sendo especificado, especialmente quando consideramos modelos iniciais (discutidos adiante).
 
-Os termos formam a linguagem sintática sobre a qual os axiomas serão expressos.
+**Substituições e Instanciação**
 
+Uma **substituição** é um mapeamento de variáveis para termos, respeitando os sorts. Se $\sigma$ é uma substituição e $x$ é uma variável do sort $s$, então $\sigma(x)$ (o termo que substitui $x$) deve também ser do sort $s$. A aplicação de uma substituição $\sigma$ a um termo $t$, denotada $t\sigma$ ou $\sigma(t)$, resulta em um novo termo onde cada ocorrência de uma variável $x$ em $t$ (que está no domínio de $\sigma$) é substituída por $\sigma(x)$. Este processo é chamado de **instanciação**.
+
+Por exemplo, se $t$ é o termo `add(x, suc(y))` e a substituição $\sigma = \{x \mapsto \text{`zero`}, y \mapsto \text{`suc(zero)`}\}$, então $t\sigma$ é o termo `add(zero, suc(suc(zero)))`.
+Substituições são fundamentais para definir a semântica dos axiomas, que geralmente são equações entre termos contendo variáveis universalmente quantificadas.
+
+---
+
+## 2.2 Axiomas Equacionais e Especificações Algébricas
+
+Uma vez que temos a sintaxe (sorts, operações, termos), precisamos definir a semântica, ou seja, o comportamento das operações. Na especificação algébrica, isso é feito através de **axiomas equacionais**.
+
+**Definição de Axiomas como Equações entre Termos**
+
+Um **axioma equacional** (ou simplesmente uma **equação**) é uma expressão da forma $t_L = t_R$, onde $t_L$ e $t_R$ são termos do mesmo sort, possivelmente contendo variáveis. As variáveis em uma equação são implicitamente (ou explicitamente, com $\forall$) universalmente quantificadas sobre seus respectivos sorts. Uma equação $t_L = t_R$ postula que, para qualquer atribuição de valores (termos fundamentais de sorts apropriados) às variáveis presentes em $t_L$ e $t_R$, os termos resultantes $t_L'$ e $t_R'$ denotam o mesmo valor na álgebra que interpreta a especificação.
+
+Por exemplo, para o TAD `Stack` (com variáveis $s: \text{Stack}, e: \text{Elem}$), o axioma `pop(push(e, s)) = s` afirma que, para qualquer elemento `e` e qualquer pilha `s`, aplicar `pop` ao resultado de `push(e, s)` é o mesmo que a pilha original `s`.
+
+Outro exemplo, para `Natural` (com variáveis $m, n: \text{Natural}$), temos os axiomas de Peano para a adição:
+*   `add(m, zero) = m`
+*   `add(m, suc(n)) = suc(add(m, n))`
+
+**Uma Especificação Algébrica SP = (Σ, E) como um par Assinatura-Axiomas**
+
+Formalmente, uma **especificação algébrica** (ou Teoria Equacional Apresentada) é um par $SP = (\Sigma, E)$, onde:
+*   $\Sigma$ é uma assinatura multissortida (definindo os sorts $S$ e as operações $\Omega$).
+*   $E$ é um conjunto de $\Sigma$-equações (os axiomas), onde os termos em cada equação são construídos a partir de $\Sigma$ e de um conjunto $X$ de variáveis (cujos sorts estão em $S$).
+
+> **Definição 2.1: Especificação Algébrica**
+>
+> Uma Especificação Algébrica $SP$ é um par $(\Sigma, E)$, onde $\Sigma$ é uma assinatura multissortida e $E$ é um conjunto de $\Sigma$-equações.
+> Os sorts, operações e variáveis em $E$ devem estar de acordo com $\Sigma$.
+
+Esta definição é central. Ela captura a ideia de que um TAD é definido puramente por sua sintaxe (o que pode ser escrito) e pelas leis (axiomas) que governam a igualdade dessas expressões sintáticas.
+
+**Consequência Lógica e Derivação (Regras de Inferência da Lógica Equacional)**
+
+Dado uma especificação $SP = (\Sigma, E)$, uma equação $t_L = t_R$ é uma **consequência lógica** de $E$, denotado $E \models t_L = t_R$, se $t_L = t_R$ é válida em todas as álgebras que satisfazem todas as equações em $E$ (a noção de "satisfação em uma álgebra" será definida na próxima seção).
+
+Alternativamente, podemos definir um sistema de **derivação** formal para a lógica equacional. Uma equação $t_L = t_R$ é derivável de $E$, denotado $E \vdash t_L = t_R$, se ela pode ser obtida a partir dos axiomas em $E$ e das regras de inferência da lógica equacional. As regras de inferência básicas são:
+
+1.  **Reflexividade:** Para qualquer termo $t$, $E \vdash t = t$.
+2.  **Simetria:** Se $E \vdash t_1 = t_2$, então $E \vdash t_2 = t_1$.
+3.  **Transitividade:** Se $E \vdash t_1 = t_2$ e $E \vdash t_2 = t_3$, então $E \vdash t_1 = t_3$.
+4.  **Congruência (Substitutividade para operações):** Se $f: s_1 \times \ldots \times s_n \rightarrow s$ é uma operação em Σ, e $E \vdash t_i = t'_i$ para $i=1, \ldots, n$ (onde $t_i, t'_i$ são termos do sort $s_i$), então $E \vdash f(t_1, \ldots, t_n) = f(t'_1, \ldots, t'_n)$.
+5.  **Substituição (Instanciação de axiomas):** Se $(u = v) \in E$ é um axioma (com variáveis $X_E$) e $\sigma$ é uma substituição que mapeia as variáveis em $X_E$ para termos sobre Σ (com variáveis $X$), então $E \vdash u\sigma = v\sigma$.
+
+Um resultado fundamental da lógica equacional (Teorema da Completude de Birkhoff para Lógica Equacional) estabelece que o sistema de derivação é **sólido** ($E \vdash eq \implies E \models eq$) e **completo** ($E \models eq \implies E \vdash eq$). Isso significa que podemos usar provas formais (derivações) para estabelecer todas as consequências lógicas dos axiomas.
+
+---
 **Exercício 2.1:**
-Dada a assinatura para `Natural` com $S = \{$ `Nat` $\}$ e $F = \{$ `` `zero`: $\rightarrow$ `Nat` ``, `` `suc`: `Nat` $\rightarrow$ `Nat` ``, `` `add`: `Nat` $\times$ `Nat` $\rightarrow$ `Nat` `` $\}$, e um conjunto de variáveis $X = \{$ `x: Nat`, `y: Nat` $\}$, forneça três exemplos de termos fundamentais de sort `Nat` e três exemplos de termos não fundamentais (que usam variáveis) de sort `Nat`.
+Dada a especificação `Stack` com axiomas (S1)-(S4) e um novo axioma (S5) `top(new) = errorElem` (assumindo `errorElem` é uma constante de `Elem`), mostre uma derivação informal de `top(pop(push(e1, push(e2, new)))) = e2`, listando os axiomas usados em cada passo.
 
 **Resolução do Exercício 2.1:**
-*   **Termos Fundamentais de sort `Nat`:**
-    1.  `zero` (diretamente da constante)
-    2.  `suc(suc(zero))` (aplicação de `suc` a um termo fundamental)
-    3.  `add(suc(zero), zero)` (aplicação de `add` a termos fundamentais)
-*   **Termos Não Fundamentais de sort `Nat`:**
-    1.  `x` (uma variável)
-    2.  `add(x, y)` (aplicação de `add` a variáveis)
-    3.  `suc(add(x, zero))` (aplicação de `suc` a um termo não fundamental) □
 
-**2.1.3 Substituições e Instanciação**
+Queremos derivar `top(pop(push(e1, push(e2, new)))) = e2`.
 
-Uma **substituição** é um mapeamento de variáveis para termos do mesmo sort. Se $\sigma$ é uma substituição e `t` é um termo, `t`$\sigma$ (ou $\sigma($`t`$)$) denota o termo obtido substituindo cada ocorrência de uma variável `x` em `t` pelo termo $\sigma($`x`$)$, de forma simultânea. Este processo é chamado de **instanciação**.
+1.  Considere o termo interno $pop(push(e1, push(e2, new)))$.
+    Seja $s' = push(e2, new)$. Então o termo é $pop(push(e1, s'))$.
+    Pelo Axioma (S4), `pop(push(x, y)) = y`.
+    Instanciando com $x \mapsto e1$ e $y \mapsto s'$, temos:
+    $pop(push(e1, push(e2, new))) = push(e2, new)$ (Usando S4)
 
-Por exemplo, se `t` = `` `add`(`n`, `suc`(`m`)) `` e a substituição $\sigma$ mapeia `n` $\mapsto$ `zero` e `m` $\mapsto$ `suc(zero)` (assumindo `n`, `m` são variáveis de sort `Nat`), então `t`$\sigma$ = `` `add`(`zero`, `suc`(`suc`(`zero`))) ``.
+2.  Agora, substituímos isso na expressão original:
+    $top(pop(push(e1, push(e2, new))))$ se torna $top(push(e2, new))$ (Pelo passo 1 e regra de congruência para `top`)
 
-A substituição é crucial para a aplicação de axiomas, pois os axiomas são geralmente declarados com variáveis, e eles se aplicam a quaisquer termos que possam ser obtidos instanciando essas variáveis com termos fundamentais ou outros termos apropriados.
+3.  Considere o termo $top(push(e2, new))$.
+    Pelo Axioma (S3), `top(push(x, y)) = x`.
+    Instanciando com $x \mapsto e2$ e $y \mapsto new$, temos:
+    $top(push(e2, new)) = e2$ (Usando S3)
 
-**2.2 Axiomas Equacionais e Especificações Algébricas**
+Portanto, por transitividade da igualdade, combinando os passos 2 e 3:
+`top(pop(push(e1, push(e2, new)))) = e2`.
+∎
 
-A assinatura Σ define a sintaxe, mas não atribui significado às operações. A semântica das operações é definida por um conjunto de **axiomas**, geralmente na forma de equações.
+(Nota: O axioma (S5) não foi necessário para esta derivação específica, pois `pop` e `top` nunca foram aplicados diretamente a `new` de forma que gerasse erro neste caminho.)
 
-**2.2.1 Definição de Axiomas como Equações entre Termos**
+---
 
-Um **axioma equacional** (ou simplesmente uma **equação**) sobre uma assinatura Σ e um conjunto de variáveis $X$ é uma expressão da forma `` `tL` = `tR` ``, onde `tL` e `tR` são termos do mesmo sort em $T_{\Sigma}(X)$ (i.e., `tL`, `tR` $\in T_{\Sigma, s}(X)$ para algum sort `s`). As variáveis que aparecem em `tL` e `tR` são consideradas universalmente quantificadas implicitamente. Isso significa que a equação é afirmada como válida para todas as possíveis instanciações das variáveis com termos fundamentais dos seus respectivos sorts.
+## 2.3 Semântica das Especificações Algébricas: Σ-Álgebras
 
-Por exemplo, para o TAD `Nat` com a assinatura definida anteriormente, poderíamos ter os seguintes axiomas para a operação `add`:
-*   `add(zero, y) = y`
-*   `add(suc(x), y) = suc(add(x, y))`
-Aqui, `x` e `y` são variáveis (implicitamente de sort `Nat`). A primeira equação afirma que adicionar `zero` a qualquer número natural `y` resulta no próprio `y`. A segunda define a adição com o `suc`cessor de um número `x` recursivamente.
+Até agora, lidamos com a sintaxe das especificações algébricas. Para dar significado (semântica) a uma especificação $SP = (\Sigma, E)$, introduzimos o conceito de **Σ-álgebra**. Uma Σ-álgebra é uma estrutura matemática concreta que fornece uma interpretação para os sorts e símbolos de operação da assinatura Σ.
 
-Algumas vezes, os axiomas podem ser **equações condicionais**, da forma `` `u₁` = `v₁` $\land \dots \land$ `uₖ` = `vₖ` $\implies$ `tL` = `tR` ``. Isso significa que a equação `` `tL` = `tR` `` é válida apenas se as condições `` `uⱼ` = `vⱼ` `` forem satisfeitas. Para simplificar, muitos sistemas de especificação algébrica inicial focam em axiomas puramente equacionais.
+**Definição de uma Σ-Álgebra: Domínios Portadores e Interpretação de Operações**
 
-**2.2.2 Uma Especificação Algébrica SP = (Σ, E) como um par Assinatura-Axiomas**
+Dado uma assinatura multissortida $\Sigma = (S, \Omega)$, uma **Σ-álgebra** $A$ consiste em:
 
-Com os conceitos de assinatura e axiomas, podemos agora definir formalmente uma especificação algébrica.
+1.  Para cada nome de sort $s \in S$, um conjunto não vazio $A_s$, chamado **domínio portador** (ou carrier set) do sort $s$ na álgebra $A$. Este conjunto contém os "valores" concretos do tipo $s$ no modelo $A$.
+2.  Para cada símbolo de operação $f \in \Omega_{s_1 \ldots s_n, s}$ (com $n \ge 0$), uma função (ou operação concreta) $f_A: A_{s_1} \times \ldots \times A_{s_n} \rightarrow A_s$. Esta função $f_A$ é a interpretação do símbolo de operação $f$ na álgebra $A$. Se $f$ é uma constante ($n=0$), $f_A$ é um elemento específico do portador $A_s$.
 
->   **Definição 2.2: Especificação Algébrica**
+> **Definição 2.2: Σ-Álgebra**
 >
->   Uma **especificação algébrica** SP é um par $(\Sigma, E)$, onde:
->   1.  Σ = $(S, F)$ é uma assinatura multissortida.
->   2.  $E$ é um conjunto de axiomas (tipicamente equações ou equações condicionais) sobre termos formados a partir de Σ e um conjunto adequado de variáveis $X$. As variáveis em $E$ são consideradas universalmente quantificadas.
+> Seja $\Sigma = (S, \Omega)$ uma assinatura multissortida. Uma Σ-álgebra $A$ é uma família de conjuntos $\{A_s\}_{s \in S}$ (os domínios portadores) e uma família de funções $\{f_A\}_{f \in \Omega}$ (as interpretações das operações) tal que se $f \in \Omega_{s_1 \ldots s_n, s}$, então $f_A: A_{s_1} \times \ldots \times A_{s_n} \rightarrow A_s$.
 
-A especificação SP define um Tipo Abstrato de Dados. A assinatura Σ define a interface sintática do TAD, e o conjunto de axiomas $E$ define seu comportamento semântico.
+Por exemplo, para uma assinatura de `Boolean` com sorts $S = \{\text{Boolean}\}$ e operações `true`: $\rightarrow \text{Boolean}$, `false`: $\rightarrow \text{Boolean}$, `not`: $\text{Boolean} \rightarrow \text{Boolean}$:
+Uma Σ-álgebra $A_{std}$ (a álgebra padrão dos booleanos) seria:
+*   $A_{std, \text{Boolean}} = \{\mathbf{T}, \mathbf{F}\}$ (dois valores distintos para verdade e falsidade)
+*   $\text{true}_{A_{std}} = \mathbf{T}$
+*   $\text{false}_{A_{std}} = \mathbf{F}$
+*   $\text{not}_{A_{std}}(\mathbf{T}) = \mathbf{F}$, $\text{not}_{A_{std}}(\mathbf{F}) = \mathbf{T}$
 
-**2.2.3 Consequência Lógica e Derivação**
+Qualquer termo $t \in T_{\Sigma}(X)$ pode ser interpretado em uma Σ-álgebra $A$ dado uma **valoração** (ou atribuição) $\alpha: X \rightarrow A$ que mapeia cada variável $x$ de sort $s$ em $X$ para um valor $\alpha(x)$ no portador $A_s$. A interpretação de $t$ em $A$ sob $\alpha$, denotada $eval_A(t, \alpha)$ ou $t_{A,\alpha}$, é definida recursivamente:
+*   Se $t = x$ (uma variável), $eval_A(x, \alpha) = \alpha(x)$.
+*   Se $t = f(t_1, \ldots, t_n)$, $eval_A(f(t_1, \ldots, t_n), \alpha) = f_A(eval_A(t_1, \alpha), \ldots, eval_A(t_n, \alpha))$.
+Se $t$ é um termo fundamental (sem variáveis), sua interpretação $t_A$ não depende de $\alpha$.
 
-Dado um conjunto de axiomas $E$, uma equação `` `t₁` = `t₂` `` é uma **consequência lógica** de $E$, denotado $E \models$ `` `t₁` = `t₂` ``, se `` `t₁` = `t₂` `` é válida em todos os modelos (álgebras, veja Seção 2.3) que satisfazem todos os axiomas em $E$.
+**Satisfação de Equações em uma Álgebra. Modelos de uma Especificação**
 
-Alternativamente, podemos definir a **derivabilidade** de uma equação a partir de $E$, denotado $E \vdash$ `` `t₁` = `t₂` ``. Uma equação `` `t₁` = `t₂` `` é derivável de $E$ se ela pode ser obtida a partir dos axiomas em $E$ aplicando um conjunto de regras de inferência da lógica equacional. Estas regras incluem:
-*   **Reflexividade:** Para qualquer termo `t`, $E \vdash$ `` `t`=`t` ``.
-*   **Simetria:** Se $E \vdash$ `` `t₁` = `t₂` ``, então $E \vdash$ `` `t₂` = `t₁` ``.
-*   **Transitividade:** Se $E \vdash$ `` `t₁` = `t₂` `` e $E \vdash$ `` `t₂` = `t₃` ``, então $E \vdash$ `` `t₁` = `t₃` ``.
-*   **Congruência (ou Substitutividade):** Se `` `f`: `s₁` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` `` é uma operação e $E \vdash$ `` `tᵢ` = `t'ᵢ` `` para $i=1, \dots, n$ (onde `tᵢ`, `t'ᵢ` são termos de sort `sᵢ`), então $E \vdash$ `` `f`(`t₁`, ..., `tₙ`) = `f`(`t'₁`, ..., `t'ₙ`) ``.
-*   **Instanciação:** Se `` `tL` = `tR` `` é um axioma em $E$ (ou uma equação já derivada) com variáveis `x₁`, ..., `xₖ`, e $\sigma$ é uma substituição que mapeia cada `xⱼ` para um termo $\sigma($`xⱼ`$)$ do sort apropriado, então $E \vdash$ `` (`tL`)$\sigma$ = (`tR`)$\sigma$ ``.
+Uma Σ-álgebra $A$ **satisfaz** uma Σ-equação $(X, t_L = t_R)$ (onde $X$ é o conjunto de variáveis na equação), denotado $A \models t_L = t_R$, se para toda valoração $\alpha: X \rightarrow A$, temos $eval_A(t_L, \alpha) = eval_A(t_R, \alpha)$. Ou seja, a equação se torna uma identidade na álgebra $A$ quando as variáveis são substituídas por quaisquer valores dos portadores apropriados.
 
-Para sistemas de lógica equacional "bem comportados", os conceitos de consequência lógica ($\models$) e derivabilidade ($\vdash$) coincidem (teorema da completude da lógica equacional). Isso significa que tudo o que é semanticamente verdadeiro (válido em todos os modelos) pode ser provado sintaticamente através de derivações, e vice-versa.
+Uma Σ-álgebra $A$ é um **modelo** de uma especificação algébrica $SP = (\Sigma, E)$ se $A$ satisfaz todas as equações (axiomas) em $E$. Escrevemos $A \models SP$.
 
-**2.3 Semântica das Especificações Algébricas: Σ-Álgebras**
+Por exemplo, a álgebra $A_{std}$ dos booleanos satisfaz os axiomas usuais como `not(true) = false`. Se uma álgebra interpretasse $not(true)$ como $true$, ela não seria um modelo da especificação padrão de `Boolean`.
 
-Até agora, focamos nos aspectos sintáticos de uma especificação algébrica (sorts, operações, termos, equações). Para dar significado a esses símbolos, precisamos introduzir a noção de **Σ-álgebra**, que fornece uma interpretação concreta para a especificação.
+**A Classe de Todas as Σ-Álgebras que Satisfazem E (Alg(SP)). Modelos Iniciais e Finais.**
 
-**2.3.1 Definição de uma Σ-Álgebra: Domínios Portadores e Interpretação de Operações**
+Para uma dada especificação $SP = (\Sigma, E)$, a classe de todas as Σ-álgebras que são modelos de $SP$ é denotada por $Alg(SP)$. Esta classe pode conter muitas álgebras diferentes, algumas mais "abstratas" ou "concretas" que outras.
 
-Dada uma assinatura multissortida Σ = $(S, F)$, uma Σ-álgebra $A$ consiste em:
-1.  Para cada sort `s` $\in S$, um conjunto não vazio $A_s$, chamado de **conjunto portador** (ou domínio) do sort `s` na álgebra $A$. Este conjunto contém os "valores concretos" do tipo `s` nesta interpretação particular.
-2.  Para cada símbolo de operação `` `f`: `s₁` $\times$ `s₂` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` `` em $F$, uma função concreta (operação) $f^A: A_{s_1} \times A_{s_2} \times \dots \times A_{s_n} \rightarrow A_{s_0}$. Esta função $f^A$ é a interpretação da operação abstrata `f` na álgebra $A$.
-    *   Se `` `f`: $\rightarrow$ `s₀` `` é uma constante, sua interpretação $f^A$ é um elemento específico do conjunto portador $A_{s_0}$.
+Dentro de $Alg(SP)$, dois tipos de modelos são de particular interesse:
 
->   **Definição 2.3: Σ-Álgebra**
+1.  **Modelo Inicial (ou Álgebra Inicial):** Uma álgebra $I \in Alg(SP)$ é inicial se, para qualquer outra álgebra $A \in Alg(SP)$, existe um único homomorfismo de Σ-álgebras $h: I \rightarrow A$. (Um homomorfismo preserva a estrutura das operações). Intuïtivamente, a álgebra inicial é o modelo "mais abstrato" ou "menos confuso". Seus elementos são essencialmente os termos fundamentais da assinatura, quocientados apenas pelas igualdades que são prováveis a partir dos axiomas, e nada mais (sem "confusão" de elementos distintos a menos que os axiomas forcem). Frequentemente, $I$ é isomorfa a $T_{\Sigma} / \equiv_E$, a álgebra de termos fundamentais onde $\equiv_E$ é a relação de equivalência induzida pelos axiomas de $E$.
+    A álgebra inicial capta a ideia de "não há lixo" (todos os elementos são representáveis por termos) e "não há confusão" (dois termos são iguais se e somente se sua igualdade é uma consequência dos axiomas).
+
+2.  **Modelo Final (ou Álgebra Final):** Uma álgebra $Z \in Alg(SP)$ é final se, para qualquer outra álgebra $A \in Alg(SP)$, existe um único homomorfismo $h: A \rightarrow Z$. Intuïtivamente, a álgebra final é o modelo "mais concreto" ou "mais confuso". Ela identifica o máximo de termos possível sem violar os axiomas. Modelos finais são frequentemente usados para definir semântica observacional, onde os valores são distinguidos apenas por como se comportam sob operações "observadoras".
+
+A escolha entre semântica inicial ou final (ou outras) depende do que se quer enfatizar na especificação. A semântica inicial é muito comum para TADs, pois foca nas propriedades dedutíveis dos axiomas.
+
+## 2.4 Construtores, Observadores e Operações Derivadas
+
+Ao projetar uma especificação algébrica, é útil classificar as operações com base em seu papel na definição do TAD. As categorias mais comuns são construtores, observadores e, às vezes, operações derivadas ou modificadores.
+
+*   **Construtores (`Constructors`):** São as operações usadas para gerar todos os valores do sort principal do TAD. Um conjunto de construtores é escolhido de forma que todo termo fundamental do sort de interesse possa ser expresso (ou é igual, via axiomas) a um termo construído apenas com essas operações construtoras.
+    *   Para `Stack`: As operações `new` e `push` são tipicamente os construtores. Qualquer pilha pode ser representada como um termo da forma `push(e_n, ... push(e_1, new)...)`.
+    *   Para `Natural` (Peano): As operações `zero` e `suc` são os construtores.
+    A escolha de construtores é crucial para analisar propriedades como completeza (discutida no Capítulo 4).
+
+*   **Observadores (`Observers`):** São operações que retornam valores de sorts "mais primitivos" ou já definidos (como `Boolean`, `Integer`, ou `Elem` no caso do `Stack`), fornecendo informações sobre o estado de um valor do TAD sem modificá-lo no sentido de retornar um novo valor do mesmo TAD.
+    *   Para `Stack`: As operações `top` (retorna `Elem`) e `isEmpty` (retorna `Boolean`) são observadores.
+    *   Para `Natural`: A operação `isZero` (retorna `Boolean`) é um observador.
+
+*   **Operações Derivadas (ou Modificadores que não são construtores puros):** São operações cujo comportamento pode ser definido em termos dos construtores e observadores, ou que transformam um valor do TAD em outro valor do mesmo TAD, mas não são essenciais para gerar todos os valores.
+    *   Para `Stack`: A operação `pop` é um exemplo. Ele retorna um `Stack`, mas seu resultado pode ser definido pelos axiomas em termos de `push` e `new`. Por exemplo, o axioma `pop(push(e,s)) = s`.
+    *   Para `Natural`: A operação `add` (com termo genérico `add(m,n)`) é uma operação derivada. Seus axiomas a definem recursivamente usando `zero` e `suc`.
+
+A distinção entre construtores e outras operações é fundamental para várias técnicas de análise de especificações, como a prova de completeza suficiente, onde se verifica se todas as operações não construtoras estão definidas para todos os casos de aplicação dos construtores.
+
+Idealmente, os axiomas de um TAD devem definir o comportamento das operações observadoras e derivadas quando aplicadas a termos construídos a partir dos construtores. Por exemplo, os axiomas do `Stack` definem las operações `isEmpty`, `top` e `pop` em termos das operações `new` e `push`.
+
+## 2.5 Exemplos Fundamentais de Especificações Algébricas
+
+Para solidificar os conceitos apresentados, vamos detalhar as especificações algébricas de alguns TADs fundamentais.
+
+**Especificação de `Boolean`**
+
+Este é o TAD mais básico, representando os valores de verdade.
+
+> **SPEC ADT `Boolean`**
 >
->   Dada uma assinatura Σ = $(S, F)$, uma **Σ-álgebra** $A$ consiste em:
->   1.  Uma família de conjuntos $\{A_s\}_{s \in S}$, onde cada $A_s$ é o conjunto portador para o sort `s`.
->   2.  Para cada símbolo de operação `` `f`: `s₁` $\times \dots \times$ `sₙ` $\rightarrow$ `s₀` `` em $F$, uma função $f^A: A_{s_1} \times \dots \times A_{s_n} \rightarrow A_{s_0}$ (se $n=0$, $f^A \in A_{s_0}$).
-
-Uma Σ-álgebra fornece, portanto, uma instância concreta do tipo de dados definido abstratamente pela assinatura Σ. Diferentes Σ-álgebras podem fornecer diferentes interpretações (e.g., inteiros de precisão finita vs. inteiros de precisão arbitrária para o sort `Nat`).
-
-**2.3.2 Satisfação de Equações em uma Álgebra. Modelos de uma Especificação**
-
-Uma Σ-álgebra $A$ **satisfaz** uma equação `` `tL` = `tR` `` (onde `tL`, `tR` são termos sobre Σ com variáveis em $X$), denotado $A \models$ `` `tL` = `tR` ``, se para toda atribuição $\alpha: X \rightarrow A$ (que mapeia cada variável `x` $\in X_s$ para um elemento $\alpha($`x`$) \in A_s$), a avaliação de `tL` em $A$ sob $\alpha$ (denotada $eval_A($`tL`$, \alpha)$) é igual à avaliação de `tR` em $A$ sob $\alpha$ (denotada $eval_A($`tR`$, \alpha)$). A avaliação de um termo em uma álgebra é definida recursivamente:
-*   $eval_A($`x`$, \alpha) = \alpha($`x`$)$ para uma variável `x`.
-*   $eval_A($`c`$, \alpha) = c^A$ para uma constante `c`.
-*   $eval_A($`` `f`(`t₁`, ..., `tₙ`) ``, \alpha) = $f^A(eval_A($`t₁`$, \alpha), \dots, eval_A($`tₙ`$, \alpha))$ para uma operação `f` e subtermos `tᵢ`.
-
-Se uma Σ-álgebra $A$ satisfaz todos os axiomas $E$ de uma especificação algébrica SP = (Σ, E), então $A$ é dita ser um **modelo** de SP. Ou seja, $A$ é uma interpretação concreta que respeita todas as propriedades definidas pelos axiomas.
-
-**2.3.3 A Classe de Todas as Σ-Álgebras que Satisfazem E (Alg(SP))**
-
-Para uma dada especificação algébrica SP = (Σ, E), geralmente existe uma classe inteira de Σ-álgebras que são modelos de SP. Esta classe é denotada Alg(SP).
-O objetivo de uma especificação algébrica não é definir uma única álgebra (uma única implementação), mas sim caracterizar uma classe de álgebras que compartilham as mesmas propriedades fundamentais descritas pelos axiomas.
-
-Dentro da classe Alg(SP), certos modelos têm propriedades especiais. Os mais importantes são os **modelos iniciais** e os **modelos finais (terminais)**.
-*   Um **modelo inicial** $I \in Alg(SP)$ é aquele do qual existe um único homomorfismo (um mapeamento que preserva a estrutura) para qualquer outro modelo $A \in Alg(SP)$. O modelo inicial frequentemente corresponde à álgebra de termos fundamentais (`ground terms`) módulo a equivalência induzida pelos axiomas (i.e., $T_{\Sigma} / =_E$). Ele captura a ideia de "nenhum lixo" (todos os elementos são gerados pelas operações construtoras) e "nenhuma confusão" (dois termos são iguais se, e somente se, sua igualdade pode ser derivada dos axiomas).
-*   Um **modelo final** $Z \in Alg(SP)$ é aquele para o qual existe um único homomorfismo de qualquer outro modelo $A \in Alg(SP)$ para $Z$. Modelos finais são frequentemente usados para capturar semântica baseada em observação: dois elementos são considerados iguais se não podem ser distinguidos por nenhuma sequência de operações observadoras.
-
-Para especificações "bem comportadas" (como aquelas que definem TADs comuns de forma construtiva), o modelo inicial é frequentemente o modelo pretendido. Ele representa o tipo de dado mais "abstrato" que satisfaz a especificação, sem introduzir igualdades ou elementos desnecessários.
-
-**Exercício 2.2:**
-Considere a especificação algébrica do TAD `Boolean` (Seção 2.5.1). Descreva uma Σ-álgebra que seja um modelo para esta especificação. Identifique os conjuntos portadores e a interpretação de cada operação.
-
-**Resolução do Exercício 2.2:**
-Uma Σ-álgebra $A_{Bool}$ que é um modelo para a especificação `Boolean` pode ser definida da seguinte forma:
-1.  **Conjunto Portador para o sort `Boolean`:**
-    $A_{Boolean} = \{ \mathbf{V}, \mathbf{F} \}$, onde $\mathbf{V}$ representa o valor lógico "verdadeiro" e $\mathbf{F}$ representa "falso".
-2.  **Interpretação das Operações:**
-    *   `` `true`$^A: \mathbf{V}$ ``
-        (A constante `true` é interpretada como o elemento $\mathbf{V}$ em $A_{Boolean}$).
-    *   `` `false`$^A: \mathbf{F}$ ``
-        (A constante `false` é interpretada como o elemento $\mathbf{F}$ em $A_{Boolean}$).
-    *   `` `not`$^A: A_{Boolean} \rightarrow A_{Boolean}$ `` definida como:
-        *   `not`$^A(\mathbf{V}) = \mathbf{F}$
-        *   `not`$^A(\mathbf{F}) = \mathbf{V}$
-    *   `` `and`$^A: A_{Boolean} \times A_{Boolean} \rightarrow A_{Boolean}$ `` definida pela tabela verdade usual da conjunção:
-        *   `and`$^A(\mathbf{V}, \mathbf{V}) = \mathbf{V}$
-        *   `and`$^A(\mathbf{V}, \mathbf{F}) = \mathbf{F}$
-        *   `and`$^A(\mathbf{F}, \mathbf{V}) = \mathbf{F}$
-        *   `and`$^A(\mathbf{F}, \mathbf{F}) = \mathbf{F}$
-    *   `` `or`$^A: A_{Boolean} \times A_{Boolean} \rightarrow A_{Boolean}$ `` definida pela tabela verdade usual da disjunção:
-        *   `or`$^A(\mathbf{V}, \mathbf{V}) = \mathbf{V}$
-        *   `or`$^A(\mathbf{V}, \mathbf{F}) = \mathbf{V}$
-        *   `or`$^A(\mathbf{F}, \mathbf{V}) = \mathbf{V}$
-        *   `or`$^A(\mathbf{F}, \mathbf{F}) = \mathbf{F}$
-
-    Para verificar que $A_{Bool}$ é um modelo, precisamos mostrar que ela satisfaz todos os axiomas. Por exemplo, para o axioma `` `not(true) = false` ``:
-    $eval_{A_{Bool}}($`not(true)`$, \alpha) = $ `not`$^A(eval_{A_{Bool}}($`true`$, \alpha)) = $ `not`$^A($`true`$^A) = $ `not`$^A(\mathbf{V}) = \mathbf{F}$.
-    $eval_{A_{Bool}}($`false`$, \alpha) = $ `false`$^A = \mathbf{F}$.
-    Como $\mathbf{F} = \mathbf{F}$, o axioma é satisfeito. Similarmente, todos os outros axiomas seriam satisfeitos por esta interpretação. Esta álgebra é, de fato, o modelo inicial (e também final, neste caso simples) da especificação `Boolean`. □
-
-**2.4 Construtores, Observadores e Operações Derivadas**
-
-Ao projetar a especificação algébrica de um TAD, é útil classificar as operações em diferentes categorias funcionais, pois isso ajuda a estruturar os axiomas e a analisar propriedades como a completeza. As categorias mais comuns são construtores, observadores e, por vezes, modificadores (embora modificadores em um contexto puramente algébrico e imutável sejam frequentemente vistos como funções que retornam uma nova instância modificada, podendo ser classificados como construtores ou operações derivadas).
-
-1.  **Construtores (`Constructors`):** São as operações cuja função primária é gerar ou construir os valores do sort principal do TAD. Eles formam a base indutiva para definir todos os possíveis valores do tipo. Geralmente, distingue-se entre:
-    *   **Construtores Base:** Operações (tipicamente constantes) que criam instâncias "iniciais" ou "atômicas" do TAD, sem depender de outras instâncias do mesmo TAD (e.g., `` `newStack`: $\rightarrow$ `Stack[Element]` ``).
-    *   **Construtores Indutivos:** Operações que tomam uma ou mais instâncias existentes do TAD (e possivelmente valores de outros sorts) para produzir uma nova instância do TAD (e.g., `` `push`: `Element` $\times$ `Stack[Element]` $\rightarrow$ `Stack[Element]` ``).
-    Um conjunto adequado de construtores deve ser capaz de gerar todos os valores "significativos" e distintos do TAD. Idealmente, o conjunto de termos fundamentais construídos apenas com construtores (a "álgebra de termos construtores") deve ser isomórfico ao modelo inicial do TAD.
-
-2.  **Observadores (`Observers` ou `Selectors`):** São operações que tomam uma instância do TAD como argumento (e possivelmente outros argumentos) e retornam um valor de um sort diferente do sort principal do TAD (e.g., um `Boolean`, um `Integer`, ou um `Element` no caso da pilha). Eles permitem "observar" ou extrair informação sobre o estado de uma instância do TAD, sem modificá-la.
-    *   Exemplos para `Stack[Element]`: `` `isEmpty`: `Stack[Element]` $\rightarrow$ `Boolean` `` e `` `top`: `Stack[Element]` $\rightarrow$ `Element` ``.
-
-3.  **Operações Derivadas (ou Modificadores Indiretos):** Algumas operações do TAD podem não ser estritamente construtoras (no sentido de serem essenciais para gerar todos os valores) nem puramente observadoras. Elas podem retornar uma instância do mesmo sort principal, mas seu comportamento pode ser definido em termos dos construtores e observadores. A operação `` `pop`: `Stack[Element]` $\rightarrow$ `Stack[Element]` `` é um exemplo: ela "modifica" uma pilha retornando uma nova pilha, e seu comportamento é definido em relação a `push` (um construtor). Em muitas especificações, o conjunto de axiomas é estruturado de forma que o comportamento de observadores e operações derivadas aplicados a termos construídos com os construtores seja definido. Por exemplo, os axiomas de `Stack[Element]` definem o que `isEmpty`, `top`, e `pop` fazem quando aplicados a `newStack()` (implicitamente, para `top` e `pop` em `newStack()`, o comportamento não é definido diretamente pelos axiomas construtivos, indicando operações parciais) ou a `` `push`(`e`, `s`) ``.
-
-Esta classificação ajuda a pensar sobre a **completeza suficiente** de uma especificação (ver Capítulo 4): uma especificação é suficientemente completa se o resultado de qualquer observador aplicado a qualquer termo construtor pode ser determinado (reduzido a um valor do sort de resultado do observador) usando os axiomas.
-
-**2.5 Exemplos Fundamentais de Especificações Algébricas**
-
-Para solidificar os conceitos introduzidos, apresentaremos agora as especificações algébricas para alguns tipos de dados fundamentais.
-
-**2.5.1 Especificação de `Boolean`**
-
-O tipo de dado Booleano é um dos mais básicos, representando valores de verdade.
-
->   **SPEC ADT `Boolean`**
+> **Sorts:**
+> *   `Boolean` - o sort dos valores de verdade.
 >
->   **Sorts:**
->   *   `Boolean` - o sort dos valores de verdade
+> **Signature (Σ<sub>Boolean</sub>):**
+> *   `true:` $\rightarrow$ `Boolean`
+>     - A constante booleana representando verdade. (Construtor)
+> *   `false:` $\rightarrow$ `Boolean`
+>     - A constante booleana representando falsidade. (Construtor)
+> *   `not:` `Boolean` $\rightarrow$ `Boolean`
+>     - A operação de negação lógica.
+> *   `and:` `Boolean` $\times$ `Boolean` $\rightarrow$ `Boolean`
+>     - A operação de conjunção lógica (E).
+> *   `or:` `Boolean` $\times$ `Boolean` $\rightarrow$ `Boolean`
+>     - A operação de disjunção lógica (OU).
+> *   `eqB:` `Boolean` $\times$ `Boolean` $\rightarrow$ `Boolean`
+>     - A operação de igualdade booleana.
 >
->   **Signature (Σ<sub>Boolean</sub>):**
->   *   `true: \rightarrow Boolean`
->       - A constante booleana representando verdade.
->   *   `false: \rightarrow Boolean`
->       - A constante booleana representando falsidade.
->   *   `not: Boolean \rightarrow Boolean`
->       - A operação de negação lógica.
->   *   `and: Boolean \times Boolean \rightarrow Boolean`
->       - A operação de conjunção lógica (E).
->   *   `or: Boolean \times Boolean \rightarrow Boolean`
->       - A operação de disjunção lógica (OU).
+> **Axioms (E<sub>Boolean</sub>):**
 >
->   **Axioms (E<sub>Boolean</sub>):**
+> `For all b, b1, b2: Boolean:`
 >
-> `For all b: Boolean:`
+> *   (B1) `not(true) = false`
+> *   (B2) `not(false) = true`
+> *   (B3) `and(true, b) = b`
+> *   (B4) `and(false, b) = false`
+> *   (B5) `or(true, b) = true`
+> *   (B6) `or(false, b) = b`
+> *   (B7) `eqB(true, true) = true`
+> *   (B8) `eqB(false, false) = true`
+> *   (B9) `eqB(true, false) = false`
+> *   (B10) `eqB(false, true) = false`
 >
->   *   `not(true) = false`
->   *   `not(false) = true`
->   *   `and(true, b) = b`
->   *   `and(false, b) = false`
->   *   `or(true, b) = true`
->   *   `or(false, b) = b`
->
->   *Nota: `true` e `false` são os construtores. Os axiomas para `not`, `and` e `or` definem seu comportamento quando aplicados a estes construtores. Uma propriedade importante, geralmente assumida ou provada a partir de uma especificação mais fundamental, é que `true` $\neq$ `false`.*
+> Nota: As operações `true` e `false` são os construtores. É implicitamente assumido na semântica inicial que $true \neq false$, pois não há axioma que os iguale. Os axiomas para `not`, `and`, `or` e `eqB` definem seu comportamento quando aplicados aos construtores.
 
-**2.5.2 Especificação de `Natural` (Números Naturais segundo Peano)**
+**Especificação de `Natural` (Números Naturais segundo Peano)**
 
-Os números naturais podem ser especificados com base nos axiomas de Peano, usando zero e a função sucessor como construtores.
+Esta especificação formaliza os números naturais ($0, 1, 2, \ldots$) usando os axiomas de Peano.
 
->   **SPEC ADT `Natural`**
+> **SPEC ADT `Natural`**
 >
->   **Sorts:**
->   *   `Natural` - o sort dos números naturais (incluindo zero)
->   *   `Boolean` - o sort booleano (assumido como especificado previamente)
+> **Uses:** `Boolean` (assumimos que o TAD `Boolean` e suas operações já foram especificados)
 >
->   **Signature (Σ<sub>Natural</sub>):**
->   *   `zero: \rightarrow Natural`
->       - O número natural zero.
->   *   `succ: Natural \rightarrow Natural`
->       - A função sucessor (retorna $n+1$ para um natural $n$).
->   *   `isZero: Natural \rightarrow Boolean`
->       - Verifica se um número natural é zero.
->   *   `add: Natural \times Natural \rightarrow Natural`
->       - A operação de adição de números naturais.
->   *   `mult: Natural \times Natural \rightarrow Natural`
->       - A operação de multiplicação de números naturais.
+> **Sorts:**
+> *   `Natural` - o sort dos números naturais.
 >
->   **Axioms (E<sub>Natural</sub>):**
+> **Signature (Σ<sub>Natural</sub>):**
+> *   `zero:` $\rightarrow$ `Natural`
+>     - A constante zero. (Construtor)
+> *   `suc:` `Natural` $\rightarrow$ `Natural`
+>     - A operação sucessor (n+1). (Construtor)
+> *   `add:` `Natural` $\times$ `Natural` $\rightarrow$ `Natural`
+>     - A operação de adição.
+> *   `mult:` `Natural` $\times$ `Natural` $\rightarrow$ `Natural`
+>     - A operação de multiplicação.
+> *   `isZero:` `Natural` $\rightarrow$ `Boolean`
+>     - Verifica se um natural é zero. (Observador)
+> *   `eqN:` `Natural` $\times$ `Natural` $\rightarrow$ `Boolean`
+>     - Verifica a igualdade entre dois naturais. (Observador)
+>
+> **Axioms (E<sub>Natural</sub>):**
 >
 > `For all n, m: Natural:`
 >
->   *   `isZero(zero) = true`
->   *   `isZero(succ(n)) = false`
+> *   (N1) `isZero(zero) = true`
+> *   (N2) `isZero(suc(n)) = false`
 >
->   *   `add(n, zero) = n`
->   *   `add(n, succ(m)) = succ(add(n, m))`
+> *   (N3) `add(n, zero) = n`
+> *   (N4) `add(n, suc(m)) = suc(add(n, m))`
 >
->   *   `mult(n, zero) = zero`
->   *   `mult(n, succ(m)) = add(n, mult(n, m))`
+> *   (N5) `mult(n, zero) = zero`
+> *   (N6) `mult(n, suc(m)) = add(mult(n, m), n)`
 >
->   *Nota: `zero` e `succ` são os construtores. Os axiomas definem `isZero`, `add` e `mult` recursivamente sobre a estrutura gerada por esses construtores. Um axioma implícito ou adicional importante na teoria de Peano é que `succ(n)` nunca é `zero` e que `succ` é injetiva (`succ(n)` = `succ(m)` $\implies$ `n` = `m`), garantindo que os números naturais assim construídos são distintos.*
-
-**Exercício 2.3:**
-Usando os axiomas da especificação `Natural`, mostre a derivação (ou sequência de igualdades) para o termo `add(succ(zero), succ(zero))`. Qual é a sua forma normal em termos dos construtores `zero` e `succ`?
-
-**Resolução do Exercício 2.3:**
-Queremos encontrar a forma normal de `add(succ(zero), succ(zero))`.
-1.  `add(succ(zero), succ(zero))`
-    Aplicando o axioma `add(n, succ(m)) = succ(add(n, m))` com `n` $\mapsto$ `succ(zero)` e `m` $\mapsto$ `zero`:
-    $= succ(add(succ(zero), zero))$
-2.  Dentro do `succ`, temos `add(succ(zero), zero)`.
-    Aplicando o axioma `add(n, zero) = n` com `n` $\mapsto$ `succ(zero)`:
-    `add(succ(zero), zero) = succ(zero)`
-3.  Substituindo de volta na expressão de (1):
-    $= succ(succ(zero))$
-
-A forma normal do termo `add(succ(zero), succ(zero))` em termos dos construtores `zero` e `succ` é `succ(succ(zero))`. □
-
-**2.5.3 Especificação de `Integer` (Inteiros)**
-
-A especificação de inteiros pode ser feita de várias maneiras. Uma abordagem é construí-los a partir dos naturais (e.g., como pares de naturais $(a,b)$ representando $a-b$, ou usando um natural para magnitude e um sinal). Outra é definir construtores diretos para inteiros. Aqui, apresentamos uma especificação com `zeroInt`, `succInt` (sucessor) e `predInt` (predecessor).
-
->   **SPEC ADT `Integer`**
+> *   (N7) `eqN(zero, zero) = true`
+> *   (N8) `eqN(suc(n), zero) = false`
+> *   (N9) `eqN(zero, suc(m)) = false`
+> *   (N10) `eqN(suc(n), suc(m)) = eqN(n, m)`
 >
->   **Sorts:**
->   *   `Integer` - o sort dos números inteiros
->   *   `Boolean` - o sort booleano
+> Nota: As operações `zero` e `suc` são os construtores. O axioma de Peano que afirma que o termo `suc(n)` nunca é `zero` é capturado por (N2) e (N8)/(N9). O axioma de que `suc` é injetivo (ou seja, se $suc(n) = suc(m)$ então $n = m$) é capturado por (N10) através da operação `eqN`. A indução não é diretamente expressa como um axioma de primeira ordem aqui, mas é uma propriedade da álgebra inicial desta especificação.
+
+**Especificação de `Integer` (Inteiros)**
+
+A especificação de inteiros pode ser feita de várias maneiras. Aqui, apresentaremos uma abordagem que usa os construtores `zeroI`, `sucI` (sucessor) e `predI` (predecessor).
+
+> **SPEC ADT `Integer`**
 >
->   **Signature (Σ<sub>Integer</sub>):**
->   *   `zeroInt: \rightarrow Integer`
->       - O inteiro zero.
->   *   `succInt: Integer \rightarrow Integer`
->       - A função sucessor para inteiros ($i+1$).
->   *   `predInt: Integer \rightarrow Integer`
->       - A função predecessor para inteiros ($i-1$).
->   *   `isZeroInt: Integer \rightarrow Boolean`
->       - Verifica se um inteiro é zero.
->   *   `addInt: Integer \times Integer \rightarrow Integer`
->       - Adição de inteiros.
->   *   `negInt: Integer \rightarrow Integer`
->       - Negação (inverso aditivo) de um inteiro.
+> **Uses:** `Boolean`
 >
->   **Axioms (E<sub>Integer</sub>):**
+> **Sorts:**
+> *   `Integer` - o sort dos números inteiros.
+>
+> **Signature (Σ<sub>Integer</sub>):**
+> *   `zeroI:` $\rightarrow$ `Integer`
+>     - A constante zero inteiro. (Construtor)
+> *   `sucI:` `Integer` $\rightarrow$ `Integer`
+>     - A operação sucessor inteiro (i+1). (Construtor)
+> *   `predI:` `Integer` $\rightarrow$ `Integer`
+>     - A operação predecessor inteiro (i-1). (Construtor)
+> *   `addI:` `Integer` $\times$ `Integer` $\rightarrow$ `Integer`
+>     - A operação de adição inteira.
+> *   `negI:` `Integer` $\rightarrow$ `Integer`
+>     - A operação de negação (oposto aditivo).
+> *   `isZeroI:` `Integer` $\rightarrow$ `Boolean`
+>     - Verifica se um inteiro é zero.
+> *   `eqI:` `Integer` $\times$ `Integer` $\rightarrow$ `Boolean`
+>      - Verifica a igualdade entre dois inteiros.
+>
+> **Axioms (E<sub>Integer</sub>):**
 >
 > `For all i, j: Integer:`
 >
->   *   `succInt(predInt(i)) = i`
->   *   `predInt(succInt(i)) = i`
+> *   (I1) `sucI(predI(i)) = i`
+> *   (I2) `predI(sucI(i)) = i`
 >
->   *   `isZeroInt(zeroInt) = true`
->   *   `isZeroInt(succInt(i)) = false` * (Assumindo uma definição onde $i \neq predInt(zeroInt)$ ou axiomas mais completos que resolvem a canonicidade)*
->   *   `isZeroInt(predInt(i)) = false` * (Assumindo uma definição onde $i \neq succInt(zeroInt)$ ou axiomas mais completos)*
+> *   (I3) `addI(i, zeroI) = i`
+> *   (I4) `addI(i, sucI(j)) = sucI(addI(i, j))`
+> *   (I5) `addI(i, predI(j)) = predI(addI(i, j))`
 >
->   *   `addInt(i, zeroInt) = i`
->   *   `addInt(i, succInt(j)) = succInt(addInt(i, j))`
->   *   `addInt(i, predInt(j)) = predInt(addInt(i, j))`
+> *   (I6) `negI(zeroI) = zeroI`
+> *   (I7) `negI(sucI(i)) = predI(negI(i))`
+> *   (I8) `negI(predI(i)) = sucI(negI(i))`
 >
->   *   `negInt(zeroInt) = zeroInt`
->   *   `negInt(succInt(i)) = predInt(negInt(i))`
->   *   `negInt(predInt(i)) = succInt(negInt(i))`
+> *   (I9) `isZeroI(zeroI) = true`
+> *   (I10) `isZeroI(sucI(i)) = eqI(sucI(i), zeroI)`
+> *   (I11) `isZeroI(predI(i)) = eqI(predI(i), zeroI)`
 >
->   *   `addInt(i, negInt(i)) = zeroInt`
+> *   (I12) `eqI(zeroI, zeroI) = true`
+> *   (I13) `eqI(sucI(i), zeroI) = isZeroI(predI(sucI(i)))`
 >
->   *Nota: A escolha de `zeroInt`, `succInt`, `predInt` como um conjunto completo de construtores pode ser sutil e levar a problemas de não-unicidade de representação (e.g., `succInt(zeroInt)` e `predInt(predInt(negInt(zeroInt)))` poderiam ambos representar '1' sem axiomas adicionais de normalização ou uma escolha diferente de construtores, como `fromNat: Natural \rightarrow Integer` e `negate: Integer \rightarrow Integer` com `Natural` como base). A análise de consistência e completeza (Capítulo 4) seria crucial para validar e refinar esta especificação.*
+> Nota: As operações `zeroI`, `sucI`, e `predI` podem ser considerados construtores, embora haja redundância (e.g., `sucI(predI(i)) = i`). Axiomas (I1) e (I2) estabelecem a relação inversa entre sucessor e predecessor. A especificação completa de `eqI` e `isZeroI` de forma não circular e completa requer mais cuidado e é omitida aqui para brevidade, mas envolveria casos para `sucI` e `predI` em ambos os argumentos ou seria baseada na subtração.
 
-Estes exemplos ilustram como a sintaxe (sorts, assinatura) e a semântica (axiomas) se combinam para definir formalmente um Tipo Abstrato de Dados. Os próximos capítulos explorarão como analisar essas especificações e como elas guiam a implementação e verificação.
+Estes exemplos ilustram como a estrutura de assinatura e axiomas pode ser usada para definir formalmente TADs bem conhecidos. A precisão e a natureza abstrata dessas definições são as principais vantagens da abordagem algébrica. Nos próximos capítulos, exploraremos como analisar essas especificações e como usá-las para guiar a implementação e a verificação.
 
+---
+**Exercício 2.2:**
+Usando a especificação `Natural` (N1-N10), prove informalmente que `add(suc(zero), suc(zero)) = suc(suc(zero))`. Indique os axiomas usados.
+
+**Resolução do Exercício 2.2:**
+
+Queremos provar `add(suc(zero), suc(zero)) = suc(suc(zero))`.
+
+1.  Seja o termo $add(suc(zero), suc(zero))$.
+    Este termo corresponde ao formato do lado esquerdo do axioma (N4): `add(n, suc(m)) = suc(add(n, m))`.
+    Podemos instanciar $n \mapsto suc(zero)$ e $m \mapsto zero$.
+    Aplicando (N4):
+    $add(suc(zero), suc(zero)) = suc(add(suc(zero), zero))$
+
+2.  Agora, consideramos o termo interno $add(suc(zero), zero)$.
+    Este termo corresponde ao formato do lado esquerdo do axioma (N3): `add(n, zero) = n`.
+    Podemos instanciar $n \mapsto suc(zero)$.
+    Aplicando (N3):
+    $add(suc(zero), zero) = suc(zero)$
+
+3.  Substituindo o resultado do passo 2 no resultado do passo 1:
+    $suc(add(suc(zero), zero))$ se torna $suc(suc(zero))$
+
+Portanto, por transitividade da igualdade, temos:
+`add(suc(zero), suc(zero)) = suc(suc(zero))`.
+∎
+
+---
 ---
 ## REFERÊNCIAS BIBLIOGRÁFICAS
 
-BERGSTRA, J. A.; HEERING, J.; KLINT, P. (Eds.). **Algebraic Specification.** ACM Press Frontier Series. New York, NY: Addison-Wesley, 1989.
-*   *Resumo: Uma coleção de artigos seminais que fornecem uma visão abrangente dos fundamentos e aplicações da especificação algébrica. Cobre diversos formalismos e estudos de caso, sendo uma referência clássica na área.*
+1.  EHRIG, Hartmut; MAHR, Bernd. **Fundamentals of Algebraic Specification 1: Equations and Initial Semantics.** Springer-Verlag, 1985. (EATCS Monographs on Theoretical Computer Science, Vol. 6) (ISBN 978-3540137182)
+    *   *Resumo: Um texto clássico e fundamental que estabelece as bases teóricas da especificação algébrica, com foco em lógica equacional e semântica inicial. Embora antigo, é uma referência seminal para a teoria profunda da área.*
 
-EHRIG, H.; MAHR, B. **Fundamentals of Algebraic Specification 1: Equations and Initial Semantics.** EATCS Monographs on Theoretical Computer Science, vol. 6. Berlin, Heidelberg: Springer-Verlag, 1985.
-*   *Resumo: O primeiro volume de uma obra de referência detalhada sobre os fundamentos matemáticos da especificação algébrica, com foco na semântica inicial e na teoria de álgebras. Altamente formal e completo.*
+2.  WIRSING, Martin. **Algebraic Specification.** In: van Leeuwen, J. (Ed.) *Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics*. Elsevier/MIT Press, 1990, pp. 675-788. (ISBN 978-0262220392)
+    *   *Resumo: Um capítulo de manual abrangente que serve como uma excelente pesquisa sobre o campo da especificação algébrica. Cobre desde os fundamentos até tópicos avançados como especificações estruturadas, implementações e semântica. Referência clássica e altamente citada.*
 
-GOGUEN, J. A.; THATCHER, J. W.; WAGNER, E. G. **An initial algebra approach to the specification, correctness, and implementation of abstract data types.** In: YEH, R. T. (Ed.). *Current Trends in Programming Methodology, Vol. IV: Data Structuring*. Englewood Cliffs, NJ: Prentice-Hall, 1978, pp. 80-149.
-*   *Resumo: Um dos artigos fundamentais que estabeleceu a abordagem de álgebra inicial para a especificação de TADs, influenciando profundamente o campo. Apresenta os conceitos de assinatura, álgebra, homomorfismo e a semântica inicial.*
+3.  MESEGUER, José; GOGUEN, Joseph. **Order-Sorted Algebra Solves the Constructor-Selector, Multiple Representation and Coercion Problems.** *Information and Computation*, vol. 103, no. 1, 1993, pp. 114-158.
+    *   *Resumo: Este artigo seminal introduz e formaliza a Álgebra Ordenada por Sorts (Order-Sorted Algebra - OSA), uma extensão poderosa da especificação algébrica multissortida que lida elegantemente com subtipos, herança e tratamento de erros. Relevante para entender extensões da abordagem básica.*
 
-GUTTAG, J. V.; HORNING, J. J. **The algebraic specification of abstract data types.** *Acta Informatica*, vol. 10, no. 1, pp. 27-52, Mar. 1978.
-*   *Resumo: Outro artigo influente de Guttag e Horning que detalha a metodologia de especificação algébrica e discute suas vantagens para o design e verificação de software. Apresenta exemplos e discute questões práticas.*
+4.  ASTESIANO, Egidio; BIDOIT, Michel; LESCANNE, Pierre; PAREDAENS, Jan; TARLECKI, Andrzej; WIRSING, Martin (Eds.). **Recent Trends in Data Type Specification: 17th International Workshop, WADT 2004, Barcelona, Spain, March 2004, Revised Selected Papers.** Springer, 2005. (Lecture Notes in Computer Science, Vol. 3423) (ISBN 978-3540261291)
+    *   *Resumo: Uma coletânea de artigos de um workshop proeminente na área (WADT - Workshop on Algebraic Development Techniques). Embora específico de 2004, os workshops WADT (agora ADT) são uma fonte contínua de pesquisa atual em especificações algébricas e suas aplicações. Serve como exemplo do tipo de publicação onde avanços são discutidos.*
 
-MARTIN, R. C. **Clean Architecture: A Craftsman's Guide to Software Structure and Design.** Boston, MA: Prentice Hall, 2017.
-*   *Resumo: Embora não seja sobre especificação formal, este livro discute princípios de design de software, como separação de preocupações e independência de detalhes de implementação, que são conceitualmente alinhados com os benefícios dos TADs e da ocultação de informação.*
+5.  SANNELLA, Donald; TARLECKI, Andrzej. **Foundations of Algebraic Specification and Formal Software Development.** Springer, 2012. (EATCS Monographs in Theoretical Computer Science) (ISBN 978-3642173356)
+    *   *Resumo: Um livro mais moderno que fornece uma cobertura abrangente e rigorosa dos fundamentos da especificação algébrica e seu papel no desenvolvimento formal de software. Conecta a teoria clássica com desenvolvimentos mais recentes e aplicações práticas.*
 
-WIRSING, M. **Algebraic Specification.** In: VAN LEEUWEN, J. (Ed.). *Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics*. Amsterdam: Elsevier e Cambridge, MA: MIT Press, 1990, pp. 675-788.
-*   *Resumo: Um capítulo de manual abrangente que serve como uma excelente pesquisa sobre os diversos aspectos da especificação algébrica, desde os fundamentos até tópicos mais avançados como especificações parametrizadas e ordenação de sorts.*
+6.  PAREIGIS, Bodo. **Categories and Functors.** Academic Press, 1970. (Pure and Applied Mathematics, Vol. 39) (ISBN 978-0125451505)
+    *   *Resumo: Embora seja um livro sobre Teoria das Categorias, ele é incluído aqui porque os fundamentos das Σ-Álgebras estão profundamente conectados à Teoria das Categorias (álgebras para um funtor, por exemplo). Entender categorias pode fornecer uma perspectiva mais profunda sobre as estruturas algébricas, preparando para a Parte V do livro.*
 
 ---
