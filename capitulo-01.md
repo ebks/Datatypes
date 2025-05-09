@@ -330,4 +330,3 @@ PYTHON SOFTWARE FOUNDATION. **PEP 484 – Type Hints.** Python.org. Disponível 
 
 ---
 
----
