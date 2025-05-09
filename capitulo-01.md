@@ -93,15 +93,15 @@ Utilizando uma notação funcional comum, se $S_0, S_1, \dots, S_n$ são sorts (
 >   *   `Boolean` - o sort booleano primitivo para resultados de testes
 >
 >   **Signature (Σ<sub>Stack</sub>):**
->   *   `newStack: \rightarrow Stack[Element]`
+>   *   `newStack:` $\rightarrow$ `Stack[Element]`
 >       - Constrói e retorna uma nova pilha vazia.
->   *   `push: Element \times Stack[Element] \rightarrow Stack[Element]`
+>   *   `push: Element` $\times$ `Stack[Element]` $\rightarrow$ `Stack[Element]`
 >       - Recebe um `Element` e uma `Stack[Element]`, e retorna uma nova `Stack[Element]` resultante da adição do elemento ao topo da pilha original.
->   *   `pop: Stack[Element] \rightarrow Stack[Element]`
+>   *   `pop: Stack[Element]` $\rightarrow$ `Stack[Element]`
 >       - Recebe uma `Stack[Element]` e retorna uma nova `Stack[Element]` resultante da remoção do elemento do topo da pilha original. Esta operação é parcial; sua pré-condição é que a pilha não esteja vazia.
->   *   `top: Stack[Element] \rightarrow Element`
+>   *   `top: Stack[Element]` $\rightarrow$ `Element`
 >       - Recebe uma `Stack[Element]` e retorna o `Element` que está no topo, sem modificar a pilha. Esta operação é parcial; sua pré-condição é que a pilha não esteja vazia.
->   *   `isEmpty: Stack[Element] \rightarrow Boolean`
+>   *   `isEmpty: Stack[Element]` $\rightarrow$ `Boolean`
 >       - Recebe uma `Stack[Element]` e retorna `$true$` se a pilha estiver vazia, e `$false$` caso contrário.
 >
 >   **Axioms (E<sub>Stack</sub>):**
