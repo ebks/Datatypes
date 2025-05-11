@@ -3,7 +3,7 @@
 # O TAD Vector
 ---
 
-Iniciando a Parte II deste livro, que se dedica ao estudo aprofundado de estruturas de dados lineares sob a ótica da especificação formal e da implementação rigorosa, este capítulo introduz o Tipo Abstrato de Dados (TAD) `Vector`. O `Vector`, também conhecido como array dinâmico ou lista baseada em array em muitas bibliotecas de programação, é uma das estruturas de dados mais fundamentais e versáteis, caracterizado por oferecer acesso eficiente a elementos através de um índice numérico e por gerenciar dinamicamente seu tamanho para acomodar um número variável de elementos. Este capítulo seguirá uma estrutura sistemática que será replicada para as demais estruturas de dados lineares: começaremos com uma definição abstrata do TAD `Vector`, destacando sua relevância e as operações essenciais que o caracterizam, como criação, acesso e modificação de elementos por índice, obtenção de tamanho e adição ou remoção de elementos. Em seguida, desenvolveremos uma especificação algébrica formal para o `Vector`, definindo seus sorts, operações e axiomas que capturam seu comportamento de forma precisa e independente de implementação, com foco em elementos do tipo `Natural` para manter a consistência com os exemplos da Parte I. Posteriormente, transitaremos para o projeto e a implementação de uma classe `PyVector` em Python, que realizará o TAD `Vector[Natural]`, com ênfase na utilização de anotações de tipo MyPy para garantir a consistência da interface e dos tipos de dados. Uma parte crucial do capítulo será dedicada à verificação da corretude da implementação `PyVector` em relação à sua especificação algébrica, utilizando a biblioteca Hypothesis para traduzir os axiomas em propriedades testáveis e buscar automaticamente por contraexemplos. A análise de complexidade algorítmica das operações implementadas em `PyVector` será conduzida para avaliar seu desempenho. Finalmente, o capítulo incluirá exercícios teóricos e práticos para solidificar a compreensão do TAD `Vector`, sua especificação formal, sua implementação em Python e as técnicas de verificação.
+Iniciando a Parte II deste livro, que se dedica ao estudo aprofundado de estruturas de dados lineares sob a ótica da especificação formal e da implementação rigorosa, este capítulo introduz o Tipo Abstrato de Dados (TAD) `Vector`. O `Vector`, também conhecido como array dinâmico ou lista baseada em array em muitas bibliotecas de programação, é uma das estruturas de dados mais fundamentais e versáteis, caracterizado por oferecer acesso eficiente a elementos através de um índice numérico e por gerenciar dinamicamente seu tamanho para acomodar um número variável de elementos. Este capítulo seguirá uma estrutura sistemática que será replicada para as demais estruturas de dados lineares: começaremos com uma definição abstrata do TAD `Vector`, destacando sua relevância e as operações essenciais que o caracterizam, como criação, acesso e modificação de elementos por índice, obtenção de tamanho e adição ou remoção de elementos. Em seguida, desenvolveremos uma especificação algébrica formal para o `Vector`, definindo seus sorts, operações e axiomas que capturam seu comportamento de forma precisa e independente de implementação, com foco em elementos do tipo `Natural` para manter a consistência com os exemplos da Parte I. Posteriormente, transitaremos para o projeto e a implementação de uma classe `PyVectorNatural` em Python, que realizará o TAD `Vector[Natural]`, com ênfase na utilização de anotações de tipo MyPy para garantir a consistência da interface e dos tipos de dados. Uma parte crucial do capítulo será dedicada à verificação da corretude da implementação `PyVectorNatural` em relação à sua especificação algébrica, utilizando a biblioteca Hypothesis para traduzir os axiomas em propriedades testáveis e buscar automaticamente por contraexemplos. A análise de complexidade algorítmica das operações implementadas em `PyVectorNatural` será conduzida para avaliar seu desempenho. Finalmente, o capítulo incluirá exercícios teóricos e práticos, incorporando um exemplo de extensão do TAD com a operação `insertAtIndex` e sua respectiva implementação e teste, para solidificar a compreensão do TAD `Vector`, sua especificação formal, sua implementação em Python e as técnicas de verificação.
 
 # 8.1 Definição Abstrata e Relevância do Tipo de Dados `Vector`
 
@@ -70,83 +70,9 @@ Resultados das operações:
 
 Nesta seção, desenvolveremos uma especificação algébrica formal para o Tipo Abstrato de Dados `Vector` contendo elementos do tipo `Natural`. Denotaremos este TAD como `VectorNatural`. A especificação incluirá os sorts necessários, as operações fundamentais (construtores e observadores) e um conjunto de axiomas equacionais que definem o comportamento dessas operações. Nosso objetivo é capturar a essência de um vetor indexável e de tamanho dinâmico, focando em operações como criação, adição de elementos (append), acesso por índice, e obtenção do comprimento.
 
-Para manter a especificação focada e ilustrativa, faremos algumas simplificações:
-*   A operação `append` será o principal meio de adicionar elementos e aumentar o tamanho.
-*   O acesso por índice (`get`) será definido, mas o tratamento de erro para índices inválidos (fora dos limites) não será explicitado nos axiomas desta especificação base (implicando que é uma operação parcial ou que um comportamento de erro não especificado ocorreria nesses casos).
-*   A operação de modificação de um elemento em um índice (`set`) será incluída.
-
 Assumimos que as especificações para `Natural` (com `zero`, `succ`, `add`, `eq`, `lt`, `pred`) e `Boolean` (com `true`, `false`, `and`, `or`, `not`, `ifThenElse`) já foram definidas e estão disponíveis para importação.
 
 **SPEC ADT** VectorNatural
-
-**imports:**
-*   Natural
-*   Boolean
-
-**sorts:**
-*   VectorNatural
-
-**operations:**
-*   emptyVector: --> VectorNatural
-*   append: VectorNatural x Natural --> VectorNatural
-*   isEmpty: VectorNatural --> Boolean
-*   length: VectorNatural --> Natural
-*   get: VectorNatural x Natural --> Natural
-*   set: VectorNatural x Natural x Natural --> VectorNatural
-*   pop: VectorNatural --> VectorNatural
-
-**axioms:**
-for all vn: VectorNatural, n, elem, newElem: Natural, idx, k: Natural
-
-*   (V1): isEmpty(emptyVector) = true
-*   (V2): isEmpty(append(vn, n)) = false
-
-*   (V3): length(emptyVector) = zero
-*   (V4): length(append(vn, n)) = succ(length(vn))
-
-*   (V5): eq(idx, length(vn)) = true => get(append(vn, elem), idx) = elem
-*   (V6): lt(idx, length(vn)) = true  => get(append(vn, elem), idx) = get(vn, idx)
-
-*   (V7): eq(k, length(vn)) = true =>
-        set(append(vn, elem), k, newElem) = append(vn, newElem)
-*   (V8): lt(k, length(vn)) = true =>
-        set(append(vn, elem), k, newElem) = append(set(vn, k, newElem), elem)
-*   (V9): set(emptyVector, k, newElem) = emptyVector
-
-*   (V10): pop(emptyVector) = emptyVector
-*   (V11): pop(append(vn, n)) = vn
-
-**END SPEC**
-
-A especificação `VectorNatural` define um Tipo Abstrato de Dados para vetores de números naturais. Ela **importa** as especificações `Natural` e `Boolean`. O **sort** principal é `VectorNatural`.
-As **operações** incluem os construtores `emptyVector` (vetor vazio) e `append` (adiciona um `Natural` ao final). As operações observadoras/derivadas são `isEmpty` (verifica se é vazio), `length` (retorna o comprimento como `Natural`), `get` (acessa um elemento por índice `Natural`), `set` (modifica um elemento em um índice `Natural`, retornando um novo vetor) e `pop` (remove o último elemento).
-Os **axiomas** definem o comportamento dessas operações. As variáveis `vn`, `n`, `elem`, `newElem`, `idx`, `k` são universalmente quantificadas sobre `VectorNatural` ou `Natural`.
-(V1)-(V2) definem `isEmpty`. (V3)-(V4) definem `length`. (V5)-(V6) definem `get`: (V5) trata do acesso ao elemento recém-anexado (índice igual ao comprimento anterior); (V6) trata do acesso a elementos preexistentes. Estes axiomas implicitamente requerem que o índice seja válido; um acesso fora dos limites não é definido por eles. (V7)-(V9) definem `set`: (V7) modifica o elemento recém-anexado; (V8) modifica um elemento preexistente, mantendo o último elemento anexado; (V9) define que tentar modificar um vetor vazio com qualquer índice resulta em um vetor vazio (uma escolha de tratamento para um caso de índice inválido). (V10)-(V11) definem `pop`: `pop` de um vetor vazio resulta em um vetor vazio; `pop` de um vetor não-vazio `append(vn, n)` retorna `vn`.
-
-**Exercício:**
-
-Adicione à especificação `VectorNatural` uma operação `head: VectorNatural --> Natural` que retorna o primeiro elemento do vetor (o elemento no índice `zero`). Se o vetor estiver vazio, o comportamento de `head` pode ser considerado indefinido pelos axiomas que você fornecerá (ou seja, defina-o apenas para vetores não vazios). Forneça os axiomas necessários para `head`.
-
-**Resolução:**
-
-Para adicionar a operação `head` à especificação `VectorNatural`:
-
-1.  **Adicionar a Declaração da Operação:**
-    Na seção `operations`, adicionamos:
-    *   `head: VectorNatural --> Natural`
-
-2.  **Adicionar os Axiomas para `head`:**
-    A operação `head` é essencialmente `get(vn, zero)`. Podemos definir seu comportamento usando a operação `get` já existente. A pré-condição implícita é que o vetor não seja vazio.
-
-    Na seção `axioms`, adicionamos:
-    *   (V12): isEmpty(vn) = false => head(vn) = get(vn, zero)
-
-    As variáveis `vn` já estão declaradas em `for all`.
-
-A especificação completa com `head` seria:
-
-**SPEC ADT** VectorNaturalWithHead
-
 **imports:**
 *   Natural
 *   Boolean
@@ -163,9 +89,10 @@ A especificação completa com `head` seria:
 *   set: VectorNatural x Natural x Natural --> VectorNatural
 *   pop: VectorNatural --> VectorNatural
 *   head: VectorNatural --> Natural
+*   insertAtIndex: VectorNatural x Natural x Natural --> VectorNatural
 
 **axioms:**
-for all vn: VectorNatural, n, elem, newElem: Natural, idx, k: Natural
+for all vn: VectorNatural, n, elem, newElem, valToInsert: Natural, idx, k, insertIdx: Natural
 
 *   (V1): isEmpty(emptyVector) = true
 *   (V2): isEmpty(append(vn, n)) = false
@@ -187,13 +114,54 @@ for all vn: VectorNatural, n, elem, newElem: Natural, idx, k: Natural
 
 *   (V12): isEmpty(vn) = false => head(vn) = get(vn, zero)
 
+*   (V13): length(insertAtIndex(vn, insertIdx, valToInsert)) = succ(length(vn))
+*   (V14): get(insertAtIndex(vn, insertIdx, valToInsert), insertIdx) = valToInsert
+*   (V15): lt(k, insertIdx) = true =>
+            get(insertAtIndex(vn, insertIdx, valToInsert), k) = get(vn, k)
+*   (V16): lt(insertIdx, k) = true AND lt(k, succ(length(vn))) = true =>
+           get(insertAtIndex(vn, insertIdx, valToInsert), k) = get(vn, pred(k))
+
 **END SPEC**
 
-**Explicação do Axioma para `head`:**
+A especificação `VectorNatural` define um Tipo Abstrato de Dados para vetores de números naturais. Ela importa `Natural` e `Boolean`. O sort principal é `VectorNatural`.
+As operações incluem os construtores `emptyVector` e `append`. As operações observadoras/derivadas são `isEmpty`, `length`, `get`, `set`, `pop`, `head`, e a nova operação `insertAtIndex`.
+Os axiomas (V1)-(V12) são como definidos anteriormente. Os axiomas para `insertAtIndex` (V13-V16) são baseados em suas propriedades observáveis:
+(V13) afirma que o comprimento aumenta em um. (V14) afirma que o elemento no índice de inserção é o valor inserido. (V15) afirma que elementos em índices anteriores não são afetados. (V16) afirma que elementos em índices posteriores são deslocados. Estes axiomas para `insertAtIndex` assumem que `insertIdx` é válido ($0 \le \text{insertIdx} \le \text{length(vn)}$) e que `k` nos axiomas de `get` também são válidos nos respectivos contextos.
 
-*   **(V12): `isEmpty(vn) = false => head(vn) = get(vn, zero)`**
-    Este é um axioma condicional. Ele afirma que, se um `VectorNatural` `vn` não é vazio (condição `isEmpty(vn) = false`), então a operação `head` aplicada a `vn` é igual ao resultado da operação `get` aplicada a `vn` com o índice `zero` (o primeiro índice em uma indexação baseada em zero).
-    Este axioma define `head` apenas para vetores não vazios. O comportamento de `head(emptyVector)` não é coberto por este axioma, tornando `head` uma operação parcial como especificado no enunciado do exercício. Para que `head` fosse total, precisaríamos de um axioma adicional para `head(emptyVector)`, que poderia definir um valor de erro ou ser proibido por uma pré-condição mais forte.
+**Exercício:**
+
+A especificação `VectorNatural` acima não inclui axiomas para o comportamento de `get` ou `head` quando aplicados a um `emptyVector`. Supondo que queremos que tais operações resultem em um valor de erro especial (e.g., `errorNatural` que seria parte de um sort `ResultNatural = Natural | ErrorValueNatural`), como poderíamos começar a modificar a assinatura de `get` e `head` e adicionar um axioma para `get(emptyVector, idx)`? (Não precisa especificar `ResultNatural` completamente, apenas mostre a ideia).
+
+**Resolução:**
+
+Para modificar a especificação para lidar com erros em `get` e `head`:
+
+1.  **Modificar Assinatura (Ideia):**
+    Precisaríamos de um novo sort, por exemplo `ResultNatural`, que poderia ser um `Natural` ou um valor de erro.
+    *   `ResultNatural` (novo sort)
+    *   `makeOkNatural: Natural --> ResultNatural` (construtor para resultado válido)
+    *   `makeErrorNatural: ErrorCode --> ResultNatural` (construtor para resultado de erro, `ErrorCode` seria outro sort)
+    *   `errorIndexOutOfBounds: --> ErrorCode` (uma constante de erro)
+
+    As assinaturas de `get` e `head` mudariam:
+    *   `get: VectorNatural x Natural --> ResultNatural`
+    *   `head: VectorNatural --> ResultNatural`
+
+2.  **Adicionar Axioma para `get(emptyVector, idx)`:**
+    Com a nova assinatura, poderíamos adicionar:
+    *   (V_ERR_GET_EMPTY): `get(emptyVector, idx) = makeErrorNatural(errorIndexOutOfBounds)`
+
+    E os axiomas existentes (V5, V6) para `get` teriam seus lados direitos envoltos por `makeOkNatural`:
+    *   (V5'): `eq(idx, length(vn)) = true => get(append(vn, elem), idx) = makeOkNatural(elem)`
+    *   (V6'): `lt(idx, length(vn)) = true  => get(append(vn, elem), idx) = makeOkNatural(get_internal(vn, idx))`
+        (onde `get_internal` seria a operação original que retorna `Natural`, ou os axiomas de `get` seriam reescritos para produzir `ResultNatural` diretamente, como em V5').
+
+    Similarmente para `head`:
+    *   (V_ERR_HEAD_EMPTY): `head(emptyVector) = makeErrorNatural(errorIndexOutOfBounds)`
+    *   (V12'): `isEmpty(vn) = false => head(vn) = makeOkNatural(get_internal(vn, zero))`
+        (ou `head(vn) = get(vn,zero)` se `get` já retorna `ResultNatural`)
+
+Esta abordagem torna o tratamento de erro explícito na especificação. A definição completa de `ResultNatural` e `ErrorCode`, junto com operações para inspecionar um `ResultNatural` (e.g., `isOk: ResultNatural -> Boolean`, `getValue: ResultNatural -> Natural` (parcial)), seria necessária.
 
 # 8.3 Projeto e Implementação em Python com Tipagem Estática (MyPy)
 
@@ -219,7 +187,7 @@ class PyVectorNatural:
         if initial_elements is None:
             self._elements = []
         else:
-            for x_val in initial_elements: # x_val to avoid conflict with x in exercises
+            for x_val in initial_elements: 
                 if not (isinstance(x_val, int) and x_val >= 0):
                     raise ValueError("All initial elements must be non-negative integers (Naturals).")
             self._elements = list(initial_elements) # Creates a copy
@@ -284,13 +252,31 @@ class PyVectorNatural:
         new_elements = self._elements[:-1] # Creates a new Python list without the last element
         return PyVectorNatural(new_elements)
     
-    def head(self) -> int: # Index and value are Naturals (int >= 0)
+    def head(self) -> int: 
         # Corresponds to 'head: VectorNatural --> Natural'.
         # Raises IndexError if the vector is empty.
         if self.is_empty():
             raise IndexError("Cannot get head of an empty vector.")
         return self._elements[0]
 
+    def insert_at_index(self, index: int, value: int) -> PyVectorNatural:
+        # Corresponds to 'insertAtIndex: VectorNatural x Natural x Natural --> VectorNatural'.
+        # Inserts a value at a specific index, shifting subsequent elements.
+        # Returns a NEW PyVectorNatural.
+        # Index must be 0 <= index <= self.length().
+        # Value must be a non-negative integer (Natural).
+        if not (isinstance(value, int) and value >= 0):
+            raise ValueError("Value to insert must be a non-negative integer (Natural).")
+        if not (isinstance(index, int) and index >= 0):
+            raise TypeError("Index must be a non-negative integer (Natural).")
+        
+        current_length = len(self._elements)
+        if not (0 <= index <= current_length): # Allows insertion at the end (index == current_length)
+            raise IndexError("Index out of bounds for insertion.")
+
+        # Create new list by slicing and concatenating
+        new_elements = self._elements[:index] + [value] + self._elements[index:]
+        return PyVectorNatural(new_elements)
 
     # Methods for equality and representation, useful for testing and debugging
     def __eq__(self, other: object) -> bool:
@@ -305,43 +291,42 @@ class PyVectorNatural:
     # Not part of the ADT interface, but useful for state verification.
     def to_list(self) -> PyListInternal[int]:
         return list(self._elements) # Returns a copy to maintain encapsulation
+
 ```
 O código Python acima, no arquivo `py_vector_natural.py`, define a classe `PyVectorNatural`.
-Ela encapsula uma lista Python interna `_elements` para armazenar inteiros não-negativos, representando os `Natural`s. O construtor `__init__` permite a inicialização opcional com uma lista de elementos, validando cada um. O método estático `empty_vector()` cria um vetor vazio. Os métodos `append`, `set_element`, e `pop` são implementados de forma funcional (imutável), retornando novas instâncias de `PyVectorNatural` em vez de modificar o objeto original; isso se alinha bem com a semântica equacional de muitas especificações algébricas. Os métodos `is_empty`, `length`, e `get` são observadores que retornam informações sobre o vetor. `get` e `set_element` levantam exceções (`IndexError`, `TypeError`) para índices ou valores inválidos, o que é uma decisão de implementação para lidar com os casos parciais da especificação. O método `head` foi adicionado conforme o exercício da Seção 8.2, retornando o primeiro elemento ou levantando `IndexError` se o vetor estiver vazio. Os métodos `__eq__` e `__repr__` são implementados para facilitar testes e depuração. Um método auxiliar `to_list` é fornecido para inspeção do estado interno durante os testes, retornando uma cópia para preservar o encapsulamento. Anotações de tipo MyPy são usadas consistentemente.
+Ela encapsula uma lista Python interna `_elements` para armazenar inteiros não-negativos, representando os `Natural`s. O construtor `__init__` permite a inicialização opcional com uma lista de elementos, validando cada um. O método estático `empty_vector()` cria um vetor vazio. Os métodos `append`, `set_element`, `pop`, e o recém-adicionado `insert_at_index` são implementados de forma funcional (imutável), retornando novas instâncias de `PyVectorNatural` em vez de modificar o objeto original. Os métodos `is_empty`, `length`, `get`, e `head` são observadores. `get`, `set_element`, `head` e `insert_at_index` levantam exceções para índices ou valores inválidos, o que é uma decisão de implementação para lidar com os casos parciais/de erro da especificação. Os métodos `__eq__` e `__repr__` são implementados para facilitar testes e depuração. Um método auxiliar `to_list` é fornecido para inspeção do estado interno durante os testes. Anotações de tipo MyPy são usadas consistentemente.
 
 **Exercício:**
 
-Adicione um método `prepend(self, value: int) -> PyVectorNatural` à classe `PyVectorNatural`. Este método deve corresponder a uma operação `prepend: Natural x VectorNatural --> VectorNatural` que adiciona um elemento ao *início* do vetor. A implementação deve seguir o estilo funcional/imutável, retornando um novo `PyVectorNatural`. Inclua a validação para garantir que `value` seja um "Natural" (inteiro $\ge 0$).
+Implemente um método `to_string(self) -> str` na classe `PyVectorNatural`. Este método deve retornar uma representação em string do vetor, mostrando seus elementos separados por vírgulas e entre colchetes, e.g., `"[1, 2, 3]"`. Se o vetor estiver vazio, deve retornar `"[]"`.
 
 **Resolução:**
 
-Para adicionar o método `prepend` à classe `PyVectorNatural`:
+Para adicionar o método `to_string` à classe `PyVectorNatural`:
 
 ```python
 # py_vector_natural.py (continuação da classe PyVectorNatural)
 
     # ... (outros métodos como definidos anteriormente) ...
 
-    def prepend(self, value: int) -> PyVectorNatural:
-        # Corresponds to an operation 'prepend: Natural x VectorNatural --> VectorNatural'.
-        # Returns a NEW PyVectorNatural with the value added to the beginning.
-        # This implementation is functional (immutable).
-        if not (isinstance(value, int) and value >= 0):
-            raise ValueError("Value to prepend must be a non-negative integer (Natural).")
-        
-        # Creates a new Python list with the new value at the beginning,
-        # followed by the existing elements.
-        new_elements = [value] + self._elements 
-        return PyVectorNatural(new_elements)
+    def to_string(self) -> str:
+        # Returns a string representation of the vector's elements.
+        # e.g., "[1, 2, 3]" or "[]" for an empty vector.
+        if self.is_empty():
+            return "[]"
+        else:
+            # Convert each integer element to its string representation
+            # then join them with ", "
+            elements_as_strings = [str(elem) for elem in self._elements]
+            return "[" + ", ".join(elements_as_strings) + "]"
 
     # ... (restante da classe, __eq__, __repr__, etc.) ...
-
 ```
-A adição do método `prepend` à classe `PyVectorNatural` é explicada. A assinatura do método é `prepend(self, value: int) -> PyVectorNatural`, indicando que ele recebe um inteiro `value` (representando um `Natural`) e retorna uma nova instância de `PyVectorNatural`. A primeira linha do método valida se `value` é um inteiro não-negativo. Em seguida, uma nova lista Python, `new_elements`, é criada consistindo do `value` fornecido, seguido por todos os elementos da lista interna original `self._elements`. Finalmente, uma nova instância de `PyVectorNatural` é construída com esta `new_elements` e retornada, mantendo o princípio da imutabilidade.
+O método `to_string` foi adicionado à classe `PyVectorNatural`. Ele primeiro verifica se o vetor está vazio usando `self.is_empty()`. Se estiver, retorna a string `"[]"`. Caso contrário, ele cria uma lista de strings `elements_as_strings` convertendo cada elemento inteiro da lista interna `self._elements` para sua representação em string. Em seguida, usa o método `", ".join()` para concatenar essas strings de elementos, separando-as por uma vírgula e um espaço. Finalmente, adiciona os colchetes no início e no fim para formar a representação final da string do vetor.
 
 # 8.4 Verificação de Propriedades Axiomáticas com Hypothesis
 
-Uma vez que temos a especificação algébrica formal do TAD `VectorNatural` (Seção 8.2) e uma implementação Python candidata, a classe `PyVectorNatural` (Seção 8.3), o próximo passo crítico é verificar se a implementação se comporta de acordo com os axiomas definidos na especificação. O Teste Baseado em Propriedades (PBT) com a biblioteca Hypothesis é uma técnica ideal para esta tarefa. Cada axioma da especificação algébrica pode ser traduzido em uma propriedade testável, onde Hypothesis gerará instâncias de `PyVectorNatural` e `int` (para os elementos `Natural`) e verificará se a igualdade ou relação expressa pelo axioma se mantém para a implementação.
+Uma vez que temos a especificação algébrica formal do TAD `VectorNatural` (Seção 8.2, incluindo `insertAtIndex`) e uma implementação Python candidata, a classe `PyVectorNatural` (Seção 8.3, incluindo `insert_at_index`), o próximo passo crítico é verificar se a implementação se comporta de acordo com os axiomas definidos na especificação. O Teste Baseado em Propriedades (PBT) com a biblioteca Hypothesis é uma técnica ideal para esta tarefa. Cada axioma da especificação algébrica pode ser traduzido em uma propriedade testável, onde Hypothesis gerará instâncias de `PyVectorNatural` e `int` (para os elementos `Natural`) e verificará se a igualdade ou relação expressa pelo axioma se mantém para a implementação.
 
 **Estratégias Hypothesis para `PyVectorNatural` e `Natural`:**
 
@@ -359,40 +344,39 @@ from py_vector_natural import PyVectorNatural
 st_natural_value = st.integers(min_value=0, max_value=50) 
 
 # Strategy for generating instances of the PyVectorNatural class
-# This uses st.builds with the constructor __init__(self, initial_elements)
-# and st.lists to generate the initial_elements.
 st_py_vector_natural = st.builds(
     PyVectorNatural,
     initial_elements=st.lists(st_natural_value, max_size=10)
 )
 
-# Strategy to generate a PyVectorNatural and a valid index for it (for get/set)
+# Strategy to generate a PyVectorNatural and a valid index for it (for get/set on existing elements)
 @st.composite
-def st_vector_and_valid_index(draw):
-    # draw(st.integers()) # This is a placeholder comment, not part of the logic
-    vec = draw(st_py_vector_natural)
-    if vec.is_empty():
-        # For get/set on existing elements, we need a non-empty vector.
-        # We can use assume to discard empty vectors for this specific strategy.
-        assume(not vec.is_empty()) 
-    # If not empty, a valid index is between 0 and vec.length() - 1
+def st_vector_and_valid_read_index(draw):
+    vec = draw(st_py_vector_natural.filter(lambda v: not v.is_empty())) # Ensures non-empty
     index_val = draw(st.integers(min_value=0, max_value=vec.length() - 1))
     return vec, index_val
 
 # Strategy to generate a PyVectorNatural and an index that could be its current length
-# (useful for testing append-related axioms for get/set)
+# (useful for testing append-related axioms for get/set or insert at end)
 @st.composite
-def st_vector_and_append_index(draw):
+def st_vector_and_append_or_valid_index(draw):
     vec = draw(st_py_vector_natural)
-    # Index can be from 0 up to vec.length() (the position of a new append)
     index_val = draw(st.integers(min_value=0, max_value=vec.length())) 
     return vec, index_val
+
+# Strategy for vector, a valid insertion index (0 to length), and a value
+@st.composite
+def st_vector_insert_idx_and_value(draw):
+    vec = draw(st_py_vector_natural) 
+    insert_idx = draw(st.integers(min_value=0, max_value=vec.length()))
+    val_to_insert = draw(st_natural_value) 
+    return vec, insert_idx, val_to_insert
 ```
-O código acima, destinado ao arquivo `test_py_vector_natural_axioms.py`, configura as estratégias Hypothesis. `st_natural_value` gera inteiros não-negativos até 50. `st_py_vector_natural` constrói instâncias de `PyVectorNatural` usando listas de até 10 desses "naturais". A estratégia composta `st_vector_and_valid_index` gera um `PyVectorNatural` e um índice inteiro que é garantidamente válido para esse vetor (se o vetor não for vazio, caso contrário, o `assume` faz com que Hypothesis descarte o exemplo e tente outro). A estratégia `st_vector_and_append_index` gera um vetor e um índice que pode ser o comprimento atual do vetor, útil para testar o comportamento de `get` ou `set` em relação a um elemento que seria anexado.
+O código acima, destinado ao arquivo `test_py_vector_natural_axioms.py`, configura as estratégias Hypothesis. `st_natural_value` gera inteiros não-negativos até 50. `st_py_vector_natural` constrói instâncias de `PyVectorNatural`. A estratégia `st_vector_and_valid_read_index` gera um `PyVectorNatural` não-vazio e um índice inteiro que é garantidamente válido para leitura nesse vetor. A estratégia `st_vector_and_append_or_valid_index` gera um vetor e um índice que pode ser o comprimento atual do vetor. A estratégia `st_vector_insert_idx_and_value` gera um vetor, um índice válido para inserção (incluindo o final) e um valor natural.
 
 **Testes de Propriedade para os Axiomas:**
 
-Axiomas da Seção 8.2: (V1)-(V11), e (V12) para `head`.
+Relembrando os axiomas da Seção 8.2 (V1-V16):
 ```python
 # test_py_vector_natural_axioms.py (continuação)
 
@@ -417,65 +401,64 @@ def test_V4_length_append(vn: PyVectorNatural, n: int):
     assert vn.append(n).length() == vn.length() + 1
 
 # --- Axioms for get ---
-@given(data=st_vector_and_append_index, elem=st_natural_value)
+@given(data=st_vector_and_append_or_valid_index, elem=st_natural_value)
 def test_V5_get_at_appended_pos(data: tuple[PyVectorNatural, int], elem: int):
     # (V5): eq(idx, length(vn)) = true => get(append(vn, elem), idx) = elem
     vn, idx = data
-    assume(idx == vn.length()) # Condition of the axiom
+    assume(idx == vn.length()) 
     
     appended_vector = vn.append(elem)
     assert appended_vector.get(idx) == elem
 
-@given(data=st_vector_and_valid_index, elem=st_natural_value)
+@given(data=st_vector_and_valid_read_index, elem=st_natural_value)
 def test_V6_get_at_earlier_pos(data: tuple[PyVectorNatural, int], elem: int):
     # (V6): lt(idx, length(vn)) = true  => get(append(vn, elem), idx) = get(vn, idx)
     vn, idx = data 
-    # The strategy st_vector_and_valid_index ensures vn is not empty and idx is valid for vn.
-    # The condition lt(idx, length(vn)) is thus met.
+    # st_vector_and_valid_read_index ensures idx < vn.length()
     
     appended_vector = vn.append(elem)
     assert appended_vector.get(idx) == vn.get(idx)
 
 # --- Axioms for set ---
-@given(data=st_vector_and_append_index, elem=st_natural_value, new_elem=st_natural_value)
+@given(data=st_vector_and_append_or_valid_index, elem=st_natural_value, new_elem=st_natural_value)
 def test_V7_set_at_appended_pos(data: tuple[PyVectorNatural, int], elem: int, new_elem: int):
     # (V7): eq(k, length(vn)) = true => 
     #       set(append(vn, elem), k, new_elem) = append(vn, new_elem)
     vn, k = data
-    assume(k == vn.length()) # Condition of the axiom
+    assume(k == vn.length()) 
     
     original_appended = vn.append(elem)
     set_result = original_appended.set_element(k, new_elem)
     expected_result = vn.append(new_elem)
     assert set_result == expected_result
 
-@given(vn=st_py_vector_natural, elem=st_natural_value, new_elem=st_natural_value, k_val=st_natural_value)
-@settings(suppress_health_check=[HealthCheck.filter_too_much], max_examples=200)
-def test_V8_set_at_earlier_pos(vn: PyVectorNatural, elem: int, new_elem: int, k_val: int):
+@given(data=st_vector_and_valid_read_index, elem=st_natural_value, new_elem=st_natural_value)
+@settings(suppress_health_check=[HealthCheck.filter_too_much], max_examples=100) # k is specific
+def test_V8_set_at_earlier_pos(data: tuple[PyVectorNatural, int], elem: int, new_elem: int):
     # (V8): lt(k, length(vn)) = true => 
     #       set(append(vn, elem), k, new_elem) = append(set(vn, k, new_elem), elem)
-    assume(not vn.is_empty()) # Ensure vn has elements for k to be potentially valid
-    assume(k_val < vn.length()) # Condition of the axiom: k is a valid index in vn
+    vn, k = data # k is a valid index in vn, and vn is not empty
 
     # LHS
     vec_after_append = vn.append(elem)
-    lhs = vec_after_append.set_element(k_val, new_elem)
+    lhs = vec_after_append.set_element(k, new_elem)
     
     # RHS
-    vec_after_set_original = vn.set_element(k_val, new_elem)
+    vec_after_set_original = vn.set_element(k, new_elem)
     rhs = vec_after_set_original.append(elem)
     
     assert lhs == rhs
     
-def test_V9_set_on_empty_vector_specific_axiom():
+def test_V9_set_on_empty_vector():
     # (V9): set(emptyVector, k, newElem) = emptyVector
-    # This axiom implies a specific behavior for invalid set on empty.
-    # Our Python impl raises IndexError. To test V9 comportementally:
-    # We'd need a version of set_element that returns emptyVector on invalid index for empty.
-    # For the current Python impl, we test the exception:
+    # Our Python impl raises IndexError for set on empty with any valid Natural k.
+    # To test V9 behavior, Python impl would need to change.
+    # Testing current Python impl:
     empty_vec = PyVectorNatural.empty_vector()
-    with pytest.raises(IndexError):
-        empty_vec.set_element(0, PyVectorNatural(0).to_int()) # k=0, newElem=0
+    with pytest.raises(IndexError): # k=0 is out of bounds for empty
+        empty_vec.set_element(0, 0) 
+    with pytest.raises(TypeError): # k=-1 is not Natural
+        empty_vec.set_element(-1,0)
 
 # --- Axioms for pop ---
 def test_V10_pop_emptyVector():
@@ -487,35 +470,96 @@ def test_V11_pop_append(vn: PyVectorNatural, n: int):
     # (V11): pop(append(vn, n)) = vn
     assert vn.append(n).pop() == vn
 
-# --- Axiom for head (from exercise 8.2) ---
+# --- Axiom for head ---
 @given(vn=st_py_vector_natural)
 def test_V12_head_of_non_empty(vn: PyVectorNatural):
     # (V12): isEmpty(vn) = false => head(vn) = get(vn, zero)
-    assume(not vn.is_empty()) # Condition of the axiom
+    assume(not vn.is_empty()) 
     
     assert vn.head() == vn.get(0)
 
-```
-Os testes de propriedade acima traduzem os axiomas (V1)-(V12) para o Python.
-*   Os testes para `isEmpty` e `length` (V1-V4) são diretos.
-*   Os testes para `get` (V5, V6) usam as estratégias `st_vector_and_append_index` e `st_vector_and_valid_index` e a instrução `assume` da Hypothesis para garantir que as premissas condicionais dos axiomas sejam satisfeitas. `assume` instrui Hypothesis a descartar os dados gerados se a condição não for verdadeira e tentar gerar novos dados. Se muitos dados forem descartados, Hypothesis pode reclamar (daí o `suppress_health_check` em alguns casos, embora idealmente as estratégias seriam refinadas para gerar dados que satisfaçam as premissas mais frequentemente).
-*   Os testes para `set` (V7, V8) seguem uma lógica similar, usando as estratégias apropriadas e `assume` para as condições dos axiomas. O teste `test_V9_set_on_empty_vector_specific_axiom` discute a divergência entre o axioma V9 (que retorna `emptyVector`) e a implementação Python (que levanta `IndexError` para um `set` em um vetor vazio com índice inválido). O teste é escrito para verificar o comportamento da implementação (a exceção). Para validar o axioma V9 como escrito, a implementação de `set_element` teria que ser ajustada.
-*   Os testes para `pop` (V10, V11) e `head` (V12) implementam diretamente os axiomas correspondentes, com `test_V12_head_of_non_empty` usando `assume` para a premissa de vetor não vazio.
+# --- Axioms for insertAtIndex (propriedades V13-V16 da Seção 8.2 do exercício) ---
+@given(data=st_vector_insert_idx_and_value)
+def test_V13_length_after_insert(data: tuple[PyVectorNatural, int, int]):
+    # (V13): length(insertAtIndex(vn, insertIdx, valToInsert)) = succ(length(vn))
+    vn, insert_idx, val_to_insert = data
+    
+    original_length = vn.length()
+    vec_after_insert = vn.insert_at_index(insert_idx, val_to_insert)
+    
+    assert vec_after_insert.length() == original_length + 1
 
-A execução destes testes com `pytest` permitiria uma verificação robusta da conformidade da classe `PyVectorNatural` com sua especificação algébrica formal.
+@given(data=st_vector_insert_idx_and_value)
+def test_V14_get_at_insert_index_after_insert(data: tuple[PyVectorNatural, int, int]):
+    # (V14): get(insertAtIndex(vn, insertIdx, valToInsert), insertIdx) = valToInsert
+    vn, insert_idx, val_to_insert = data
+    
+    vec_after_insert = vn.insert_at_index(insert_idx, val_to_insert)
+    
+    assert vec_after_insert.get(insert_idx) == val_to_insert
+
+@given(data=st_vector_insert_idx_and_value, k=st_natural_value)
+@settings(suppress_health_check=[HealthCheck.filter_too_much], max_examples=200, deadline=1000)
+def test_V15_get_before_insert_idx_after_insert(data: tuple[PyVectorNatural, int, int], k: int):
+    # (V15): lt(k, insertIdx) = true =>
+    #        get(insertAtIndex(vn, insertIdx, valToInsert), k) = get(vn, k)
+    vn, insert_idx, val_to_insert = data
+    
+    assume(k < insert_idx) # Condition of the axiom
+    assume(k < vn.length()) # Ensure k is a valid index in the original vector vn
+
+    vec_after_insert = vn.insert_at_index(insert_idx, val_to_insert)
+        
+    assert vec_after_insert.get(k) == vn.get(k)
+
+@given(data=st_vector_insert_idx_and_value, k=st_natural_value)
+@settings(suppress_health_check=[HealthCheck.filter_too_much], max_examples=200, deadline=1000)
+def test_V16_get_after_insert_idx_after_insert(data: tuple[PyVectorNatural, int, int], k: int):
+    # (V16): lt(insertIdx, k) = true AND lt(k, succ(length(vn))) = true =>
+    #       get(insertAtIndex(vn, insertIdx, valToInsert), k) = get(vn, pred(k))
+    vn, insert_idx, val_to_insert = data
+    vec_after_insert = vn.insert_at_index(insert_idx, val_to_insert)
+
+    assume(insert_idx < k)             # k is after the insertion point
+    assume(k < vec_after_insert.length()) # k is a valid index in the new vector
+    # This also implies k-1 was a valid index in the original vector if k > insert_idx,
+    # because vec_after_insert.length = vn.length + 1.
+    # So, k-1 < vn.length() needs to be true.
+    # If k = insert_idx + 1, then k-1 = insert_idx. This k-1 must be < vn.length().
+    # This holds if insert_idx < vn.length().
+    # If insert_idx == vn.length(), then k-1 = vn.length(), which is not < vn.length().
+    # So, for k-1 to be a valid index in vn, we need k-1 < vn.length().
+    assume((k - 1) < vn.length())
+    # Additionally, to be sure vn.get(k-1) is meaningful for the property:
+    assume((k - 1) >= insert_idx) # k-1 was an original element at or after insert_idx
+
+    assert vec_after_insert.get(k) == vn.get(k - 1)
+```
+Os testes de propriedade acima para os axiomas (V1)-(V16) são implementados.
+As estratégias foram refinadas: `st_vector_and_valid_read_index` agora filtra explicitamente para vetores não vazios usando `assume` dentro da estratégia composta, garantindo que `vec.length() - 1` seja sempre um índice válido. `st_vector_and_append_or_valid_index` permite que o índice seja `vec.length()`.
+Para os testes de `get` e `set` (V5, V6, V7, V8), `assume` é usado dentro das funções de teste para impor as premissas condicionais dos axiomas. Isso é importante porque as estratégias geram os componentes (vetor, índice) de forma um pouco mais ampla, e o `assume` restringe aos casos que o axioma realmente cobre. O `suppress_health_check` é adicionado porque `assume` pode levar a muitas rejeições de dados se a condição for muito específica, o que pode tornar o teste lento.
+O teste para (V9) `set(emptyVector, ...)` foi adaptado para verificar o comportamento da implementação Python, que levanta `IndexError` para um índice inválido em um vetor vazio, em vez de retornar `emptyVector` como o axioma (V9) simplificado sugere. Isso destaca a importância de alinhar a especificação e a implementação no tratamento de erros/casos parciais.
+Os testes para `insertAtIndex` (V13-V16) usam a estratégia `st_vector_insert_idx_and_value` e `assume`s para verificar as propriedades de comprimento e acesso a elementos antes, no, e depois do ponto de inserção. As condições em `assume` para (V16) são particularmente importantes para garantir que `vn.get(k-1)` seja um acesso válido.
 
 **Exercício:**
 
-Um possível axioma para a operação `prepend: VectorNatural x Natural -> VectorNatural` (que adiciona ao início) é: `length(prepend(vn, n)) = succ(length(vn))`. Escreva uma função de teste `pytest` chamada `test_length_of_prepend` que use Hypothesis para verificar este axioma para a implementação `PyVectorNatural`, assumindo que o método `prepend(self, value: int) -> PyVectorNatural` foi adicionado à classe.
+Um possível axioma para a operação `prepend: VectorNatural x Natural -> VectorNatural` (que adiciona ao início) é: `length(prepend(vn, n)) = succ(length(vn))`. Escreva uma função de teste `pytest` chamada `test_length_of_prepend` que use Hypothesis para verificar este axioma, assumindo que o método `prepend(self, value: int) -> PyVectorNatural` (do exercício da Seção 8.3) foi adicionado à classe `PyVectorNatural`.
 
 **Resolução:**
 
 ```python
-# test_py_vector_natural_axioms.py (continuação)
+# test_py_vector_natural_axioms.py (adicionando a este arquivo)
+# ... (importações e estratégias st_py_vector_natural, st_natural_value como antes) ...
 
-# --- Teste para o axioma length(prepend(vn, n)) = succ(length(vn)) ---
-# Assumindo que o método prepend(self, value: int) -> PyVectorNatural
-# foi adicionado à classe PyVectorNatural conforme exercício da Seção 8.3.
+# Assume que PyVectorNatural tem o método prepend implementado:
+# class PyVectorNatural:
+#     ...
+#     def prepend(self, value: int) -> PyVectorNatural:
+#         if not (isinstance(value, int) and value >= 0):
+#             raise ValueError("Value to prepend must be a non-negative integer (Natural).")
+#         new_elements = [value] + self._elements 
+#         return PyVectorNatural(new_elements)
+#     ...
 
 @given(vn=st_py_vector_natural, n=st_natural_value)
 def test_length_of_prepend(vn: PyVectorNatural, n: int) -> None:
@@ -523,32 +567,13 @@ def test_length_of_prepend(vn: PyVectorNatural, n: int) -> None:
     Verifica o axioma: length(prepend(vn, n)) = succ(length(vn))
     Na implementação Python: (vn.prepend(n)).length() == vn.length() + 1
     """
-    # Calcula o comprimento original do vetor vn
     original_length: int = vn.length()
-    
-    # Cria um novo vetor com 'n' adicionado ao início de 'vn'
     prepended_vector: PyVectorNatural = vn.prepend(n)
-    
-    # Calcula o comprimento do novo vetor (após prepend)
     length_after_prepend: int = prepended_vector.length()
-    
-    # O comprimento esperado é o comprimento original + 1 (succ(length(vn)))
     expected_length: int = original_length + 1
-    
-    # Verifica se a propriedade (axioma) se mantém
     assert length_after_prepend == expected_length
 ```
-
-**Explicação do Teste `test_length_of_prepend`:**
-1.  **Decorador `@given`:** `given(vn=st_py_vector_natural, n=st_natural_value)` instrui Hypothesis a gerar uma instância `vn` de `PyVectorNatural` e um `Natural` `n` (representado por um `int` não-negativo).
-2.  **Lógica do Teste:**
-    *   `original_length = vn.length()`: Armazena o comprimento do vetor original.
-    *   `prepended_vector = vn.prepend(n)`: Chama o método `prepend` (assumindo que ele existe e retorna um novo vetor com `n` no início).
-    *   `length_after_prepend = prepended_vector.length()`: Obtém o comprimento do vetor resultante.
-    *   `expected_length = original_length + 1`: Calcula o comprimento esperado de acordo com o axioma (o sucessor do comprimento original).
-    *   `assert length_after_prepend == expected_length`: Verifica se o comprimento observado é igual ao comprimento esperado.
-
-Este teste, quando executado, validaria se a implementação da operação `prepend` afeta corretamente o comprimento do vetor, conforme ditado pelo axioma.
+O teste `test_length_of_prepend` é adicionado. Ele usa as estratégias existentes `st_py_vector_natural` para `vn` e `st_natural_value` para `n`. Dentro do teste, o comprimento original do vetor `vn` é obtido. Em seguida, a operação `prepend` é chamada em `vn` com o valor `n`, resultando em `prepended_vector`. O comprimento deste novo vetor é calculado. Finalmente, a asserção verifica se `length_after_prepend` é igual a `original_length + 1`, que é a tradução direta do axioma `length(prepend(vn, n)) = succ(length(vn))` para a semântica de inteiros e operações de Python. Este teste valida que a implementação da operação `prepend` afeta corretamente o comprimento do vetor.
 
 # 8.5 Análise de Complexidade Algorítmica
 
@@ -566,63 +591,60 @@ Antes de analisar `PyVectorNatural`, é importante relembrar a complexidade das 
 *   Criar uma cópia da lista (`list(L)` ou `L[:]`): $O(N)$
 
 **Análise de Complexidade das Operações de `PyVectorNatural`:**
-Nossa implementação de `PyVectorNatural` adota um estilo funcional/imutável, onde operações como `append`, `set_element`, `pop` e `prepend` retornam *novas* instâncias de `PyVectorNatural`. Isso tem implicações na complexidade, pois frequentemente envolve a cópia da lista Python subjacente.
+Nossa implementação de `PyVectorNatural` adota um estilo funcional/imutável, onde operações como `append`, `set_element`, `pop` e `prepend`, `insert_at_index` retornam *novas* instâncias de `PyVectorNatural`. Isso tem implicações na complexidade, pois frequentemente envolve a cópia da lista Python subjacente.
 
 1.  **`__init__(self, initial_elements: Optional[PyListInternal[int]] = None)`:**
     *   Se `initial_elements` é `None`, cria uma lista vazia: $O(1)$.
-    *   Se `initial_elements` é fornecido (com $K$ elementos):
-        *   Iterar para validar os $K$ elementos: $O(K)$.
-        *   `self._elements = list(initial_elements)`: Cria uma cópia da lista, $O(K)$.
-    *   **Complexidade Total:** $O(K)$, onde $K$ é o número de elementos iniciais. Se sem argumentos, $O(1)$.
+    *   Se `initial_elements` é fornecido (com $K$ elementos): Iterar para validar os $K$ elementos ($O(K)$) + `self._elements = list(initial_elements)` (cópia, $O(K)$).
+    *   **Complexidade Total:** $O(K)$. Se sem argumentos, $O(1)$.
 
 2.  **`empty_vector()` (método estático):**
     *   Chama `PyVectorNatural()`, que é $O(1)$.
     *   **Complexidade:** $O(1)$.
 
 3.  **`append(self, value: int) -> PyVectorNatural`:**
-    *   Validação de `value`: $O(1)$.
-    *   `new_elements = self._elements + [value]`: A concatenação `+` para listas Python cria uma nova lista. Se `self._elements` tem $N$ elementos, esta operação copia os $N$ elementos e adiciona o novo, resultando em uma nova lista de $N+1$ elementos. Custo: $O(N)$.
-    *   `return PyVectorNatural(new_elements)`: O construtor, com `new_elements` de tamanho $N+1$, leva $O(N+1)$ ou $O(N)$ para validar e copiar.
-    *   **Complexidade Total:** $O(N)$, onde $N$ é o comprimento do vetor original. (Isto é diferente do $O(1)$ amortizado de `list.append()` que modifica a lista no local).
+    *   Validação: $O(1)$.
+    *   `new_elements = self._elements + [value]`: Concatenação `+` cria nova lista. Custo: $O(N)$ (onde $N = \text{len(self._elements)}$).
+    *   `return PyVectorNatural(new_elements)`: Construtor com $N+1$ elementos. Custo: $O(N)$.
+    *   **Complexidade Total:** $O(N)$.
 
 4.  **`is_empty(self) -> bool`:**
-    *   `not self._elements`: Acessa a lista interna e verifica se está vazia (em Python, listas vazias são Falsy). Isso é $O(1)$.
+    *   `not self._elements`: $O(1)$.
     *   **Complexidade:** $O(1)$.
 
 5.  **`length(self) -> int`:**
-    *   `len(self._elements)`: A função `len()` em uma lista Python é $O(1)$.
+    *   `len(self._elements)`: $O(1)$.
     *   **Complexidade:** $O(1)$.
 
 6.  **`get(self, index: int) -> int`:**
-    *   Validações de `index`: $O(1)$.
-    *   Acesso `self._elements[index]`: $O(1)$ para listas Python.
-    *   **Complexidade:** $O(1)$ (assumindo índice válido; o tratamento de erro por exceção também é $O(1)$ no caso de falha da validação).
+    *   Validações: $O(1)$. Acesso `self._elements[index]`: $O(1)$.
+    *   **Complexidade:** $O(1)$ (para índice válido).
 
 7.  **`set_element(self, index: int, value: int) -> PyVectorNatural`:**
-    *   Validações de `index` e `value`: $O(1)$.
-    *   `new_elements = list(self._elements)`: Cria uma cópia da lista interna de $N$ elementos. Custo: $O(N)$.
-    *   `new_elements[index] = value`: Modifica a cópia. Custo: $O(1)$.
-    *   `return PyVectorNatural(new_elements)`: O construtor com `new_elements` (tamanho $N$) leva $O(N)$.
-    *   **Complexidade Total:** $O(N)$, onde $N$ é o comprimento do vetor.
+    *   Validações: $O(1)$. `new_elements = list(self._elements)`: $O(N)$. `new_elements[index] = value`: $O(1)$. `return PyVectorNatural(new_elements)`: $O(N)$.
+    *   **Complexidade Total:** $O(N)$.
 
 8.  **`pop(self) -> PyVectorNatural`:**
-    *   `self.is_empty()`: $O(1)$.
-    *   Se vazio, `PyVectorNatural.empty_vector()`: $O(1)$.
-    *   Se não vazio, `new_elements = self._elements[:-1]`: O slicing para criar uma nova lista sem o último elemento é $O(N)$ pois copia $N-1$ elementos.
-    *   `return PyVectorNatural(new_elements)`: Construtor com $N-1$ elementos, $O(N-1)$ ou $O(N)$.
-    *   **Complexidade Total:** $O(N)$ para vetor não vazio, $O(1)$ para vetor vazio. Portanto, $O(N)$ no geral.
+    *   `self.is_empty()`: $O(1)$. Se vazio, `empty_vector()`: $O(1)$.
+    *   Se não vazio, `new_elements = self._elements[:-1]`: Slicing é $O(N)$. `return PyVectorNatural(new_elements)`: $O(N)$.
+    *   **Complexidade Total:** $O(N)$ para vetor não vazio, $O(1)$ para vetor vazio. Geral: $O(N)$.
 
 9.  **`head(self) -> int`:**
-    *   `self.is_empty()`: $O(1)$.
-    *   Se vazio, levanta `IndexError`: $O(1)$.
-    *   Se não vazio, `self._elements[0]`: $O(1)$.
+    *   `self.is_empty()`: $O(1)$. Se vazio, exceção: $O(1)$. Se não vazio, `self._elements[0]`: $O(1)$.
     *   **Complexidade:** $O(1)$.
 
-10. **`prepend(self, value: int) -> PyVectorNatural` (do exercício da Seção 8.3):**
-    *   Validação de `value`: $O(1)$.
-    *   `new_elements = [value] + self._elements`: Concatenar uma lista de um elemento `[value]` com uma lista de $N$ elementos `self._elements` cria uma nova lista de $N+1$ elementos. Custo: $O(1+N)$ ou $O(N)$.
-    *   `return PyVectorNatural(new_elements)`: Construtor com $N+1$ elementos, $O(N+1)$ ou $O(N)$.
-    *   **Complexidade Total:** $O(N)$, onde $N$ é o comprimento do vetor original.
+10. **`prepend(self, value: int) -> PyVectorNatural`:**
+    *   Validação: $O(1)$. `new_elements = [value] + self._elements`: Concatenação é $O(N)$. `return PyVectorNatural(new_elements)`: $O(N)$.
+    *   **Complexidade Total:** $O(N)$.
+
+11. **`insert_at_index(self, index: int, value: int) -> PyVectorNatural`:**
+    *   Validações: $O(1)$.
+    *   `new_elements = self._elements[:index] + [value] + self._elements[index:]`:
+        *   `self._elements[:index]`: Slicing é $O(\text{index})$.
+        *   `self._elements[index:]`: Slicing é $O(N - \text{index})$.
+        *   A concatenação `+ [value] +` envolve criar uma nova lista. O custo total desta linha é $O(N)$ porque todos os elementos são copiados para a nova lista.
+    *   `return PyVectorNatural(new_elements)`: Construtor com $N+1$ elementos, $O(N)$.
+    *   **Complexidade Total:** $O(N)$.
 
 **Resumo da Complexidade (Implementação Imutável `PyVectorNatural`):**
 *   `__init__(K_elements)`: $O(K)$
@@ -635,17 +657,9 @@ Nossa implementação de `PyVectorNatural` adota um estilo funcional/imutável, 
 *   `pop(v)`: $O(N)$
 *   `head(v)`: $O(1)$ (para vetor não vazio)
 *   `prepend(v, val)`: $O(N)$
+*   `insert_at_index(v, idx, val)`: $O(N)$
 
-**Comparação com Implementações Mutáveis Típicas (como `list` do Python):**
-Se tivéssemos optado por uma implementação *mutável* de `PyVectorNatural` (onde `append`, `set_element`, `pop`, `prepend` modificam o vetor `self` no local em vez de retornar uma nova instância), as complexidades seriam diferentes e mais próximas das da lista Python subjacente:
-*   `append` mutável: $O(1)$ amortizado.
-*   `set_element` mutável: $O(1)$.
-*   `pop` mutável (do final): $O(1)$.
-*   `prepend` mutável (usando `list.insert(0,...)`): $O(N)$.
-
-A escolha por uma implementação imutável no `PyVectorNatural` foi para alinhar melhor com a semântica funcional frequentemente associada a especificações algébricas e para facilitar o raciocínio sobre a igualdade (já que não há efeitos colaterais que mudam o estado dos objetos existentes). No entanto, isso vem com um custo de desempenho para operações que "modificam" o vetor, pois elas exigem a criação de novas cópias da estrutura de dados subjacente.
-
-Em aplicações onde o desempenho de modificações é crítico e a mutabilidade é aceitável, uma implementação mutável do TAD `Vector` seria preferível, e sua especificação algébrica poderia precisar ser adaptada para refletir a semântica de estado (possivelmente usando uma abordagem mais próxima da baseada em modelos ou com axiomas que descrevem transformações de estado). No entanto, mesmo para uma implementação mutável, os axiomas de uma especificação de estilo funcional ainda podem ser usados para teste baseado em propriedades, verificando que o *resultado observacional* após uma operação mutável é equivalente ao que a operação funcional correspondente produziria.
+A escolha por uma implementação imutável resulta em custos $O(N)$ para operações que "modificam" o vetor, devido à necessidade de cópia. Implementações mutáveis teriam complexidades diferentes para essas operações (e.g., `append` mutável seria $O(1)$ amortizado).
 
 **Exercício:**
 
@@ -678,68 +692,52 @@ O custo típico de `list.pop()` (do final) é **$O(1)$** (amortizado, se conside
 *   A operação `list.pop()` nativa do Python (do final) tem complexidade $O(1)$ amortizado.
 
 Portanto, a implementação mutável de `pop` usando slicing é significativamente menos eficiente do que a operação `pop` nativa das listas Python. Para alcançar o desempenho $O(1)$ amortizado da `list.pop()` nativa, a implementação mutável de `PyVectorNatural.pop()` teria que interagir mais diretamente com os mecanismos de gerenciamento de tamanho do array subjacente, em vez de criar uma nova lista com slicing. No entanto, se `PyVectorNatural` está encapsulando uma `list` Python, a maneira mais idiomática e eficiente de implementar um `pop` mutável que remove o último elemento seria simplesmente chamar `self._elements.pop()` diretamente.
-Se `pop` fosse `def pop_mut(self): value = self._elements.pop(); return value` (para retornar o valor), então seria $O(1)$ amortizado. Se fosse só para efeito colateral `def pop_mut(self): if not self.is_empty(): self._elements.pop()`, também $O(1)$ amortizado.
 
 O exercício pedia para considerar `self._elements = self._elements[:-1]`, que é $O(N)$.
 
 # 8.6 Exercícios Teóricos e Práticos
 
-Para consolidar os conceitos apresentados neste capítulo sobre o Tipo Abstrato de Dados `Vector[Natural]`, sua especificação algébrica, implementação em Python com `PyVectorNatural`, e a verificação de suas propriedades, esta seção propõe um conjunto de exercícios. Os exercícios são divididos em teóricos, focando na compreensão da especificação e suas propriedades, e práticos, envolvendo a extensão da implementação Python e a escrita de mais testes de propriedade.
+Esta seção apresenta exercícios para consolidar os conceitos do TAD `VectorNatural`, sua especificação, implementação e verificação.
 
-*(Nota: Para manter a estrutura de um exercício por seção de Nível 1, esta seção "8.6 Exercícios Teóricos e Práticos" não teria um exercício próprio no final dela. Em vez disso, os exercícios que normalmente estariam aqui são distribuídos ou integrados como exemplos dentro das subseções teóricas e práticas, ou seriam parte de uma seção de "Exercícios do Capítulo" ao final de todas as seções de nível 1, se a estrutura do livro permitisse. Como a diretriz é "um exercício ao final de CADA seção de Nível 1", e esta é uma seção de Nível 1, um exercício é fornecido abaixo, mas com a ressalva de que seu conteúdo é mais um resumo ou uma meta-reflexão sobre o capítulo).*
+**Exercício:**
+**(Originalmente o Exercício Teórico 1 da Seção 8.6 na solicitação anterior, integrado aqui conforme a estrutura de um exercício por seção Nível 1)**
 
-**Exercício Teórico:**
-
-1.  **Consistência dos Axiomas de `get` e `set`:**
-    Revisite os axiomas (V5)-(V6) para `get` e (V7)-(V9) para `set` na especificação `VectorNatural` (Seção 8.2). Discuta possíveis cenários de índice inválido (e.g., índice negativo, índice maior ou igual ao comprimento para `get`, ou índice maior que o comprimento para `set` no caso de `append`). Os axiomas fornecidos cobrem explicitamente esses cenários? Se não, como uma especificação algébrica poderia ser estendida para tratar esses casos de erro de forma mais formal (e.g., introduzindo um valor de erro ou usando predicados de definibilidade/pré-condições mais explícitas nos axiomas)?
-
-**Exercício Prático:**
-
-1.  **Implementar `insertAtIndex` em `PyVectorNatural` e Testar Propriedades:**
-    a.  Adicione uma operação `insertAtIndex: VectorNatural x Natural x Natural --> VectorNatural` à especificação algébrica `VectorNatural`. Esta operação deve inserir um elemento (`Natural`) em um determinado índice (`Natural`) do vetor, deslocando os elementos subsequentes para a direita. Defina os axiomas para `insertAtIndex` considerando os casos base (inserção em `emptyVector`, inserção no índice `zero`) e o caso recursivo (inserção em um índice maior que `zero` em um vetor não vazio). Pense em como `length` e `get` são afetados.
-    b.  Implemente o método correspondente `insert_at_index(self, index: int, value: int) -> PyVectorNatural` na classe `PyVectorNatural`. Lembre-se de manter o estilo funcional/imutável e de validar os parâmetros (índice deve ser $0 \le \text{index} \le \text{length()}$; valor deve ser $\ge 0$). Se o índice for igual ao comprimento, a inserção ocorre no final (equivalente a `append`).
-    c.  Usando Hypothesis, escreva pelo menos duas funções de teste de propriedade para sua implementação `insert_at_index`. Uma propriedade poderia verificar o `length` do vetor após a inserção. Outra poderia verificar se `get` no índice de inserção retorna o valor inserido, e se `get` em outros índices retorna os valores corretos (originais ou deslocados).
+Revisite os axiomas (V5)-(V6) para `get` e (V7)-(V9) para `set` na especificação `VectorNatural` (Seção 8.2). Discuta possíveis cenários de índice inválido (e.g., índice negativo, índice maior ou igual ao comprimento para `get`, ou índice maior que o comprimento para `set` no caso de `append`). Os axiomas fornecidos cobrem explicitamente esses cenários? Se não, como uma especificação algébrica poderia ser estendida para tratar esses casos de erro de forma mais formal (e.g., introduzindo um valor de erro ou usando predicados de definibilidade/pré-condições mais explícitas nos axiomas)?
 
 **Resolução:**
-
-*(Este é um exercício abrangente que reflete o conteúdo do capítulo. Uma resolução completa seria extensa. Abaixo, um esboço da solução para o Exercício Teórico 1, pois o prático requereria código e especificações completas.)*
-
-**Resolução do Exercício Teórico 1 (Esboço):**
 
 Os axiomas (V5)-(V6) para `get` e (V7)-(V9) para `set` na especificação `VectorNatural` da Seção 8.2 são definidos usando premissas condicionais (`eq(...) => ...` ou `lt(...) => ...`).
 
 *   **Cenários de Índice Inválido:**
     *   **Índice Negativo:** As operações `eq` e `lt` do TAD `Natural` não são definidas para argumentos negativos se `Natural` só inclui não-negativos. Se o índice `idx` fosse de um tipo `Integer` que pudesse ser negativo, os predicados `eq` e `lt` (que esperam `Natural`s) não se aplicariam diretamente ou falhariam em suas próprias pré-condições. A especificação, como está, assume que `idx` é um `Natural`.
     *   **Índice Maior ou Igual ao Comprimento (para `get`):**
-        *   Axioma (V5) `eq(idx, length(vn)) = true => get(append(vn, elem), idx) = elem`: Cobre o caso onde `idx` é exatamente o novo último índice após um `append`.
+        *   Axioma (V5) `eq(idx, length(vn)) = true => get(append(vn, elem), idx) = elem`: Cobre o caso onde `idx` é o novo último índice após um `append`.
         *   Axioma (V6) `lt(idx, length(vn)) = true => get(append(vn, elem), idx) = get(vn, idx)`: Cobre o caso onde `idx` é um índice válido *dentro* do `vn` original.
         *   **Não Cobertos:** Os axiomas não definem explicitamente `get(emptyVector, idx)` para qualquer `idx`. Também não definem `get(append(vn,elem), idx)` se `idx > length(vn)` (i.e., `idx` é maior que o índice do último elemento). Nestes casos, o termo `get(...)` não seria redutível por (V5) ou (V6), tornando `get` uma operação parcial.
-    *   **Índice Maior que o Comprimento (para `set` em `append`):** Similar ao `get`. (V7) cobre o índice do novo elemento. (V8) cobre índices em `vn`. Casos onde `idx_k > length(vn)` para `set(append(vn,elem), idx_k, newElem)` não são cobertos.
+    *   **Índice Maior que o Comprimento (para `set` em `append`):** Similar ao `get`. (V7) cobre o índice do novo elemento. (V8) cobre índices em `vn`. Casos onde `k > length(vn)` para `set(append(vn,elem), k, newElem)` não são cobertos.
     *   **`set` em `emptyVector` (V9):** `set(emptyVector, k, newElem) = emptyVector`. Este axioma define um comportamento para `set` em `emptyVector` para *qualquer* índice `k`. Isso é uma escolha de design que trata um índice inválido (já que `emptyVector` não tem índices válidos) retornando `emptyVector`.
 
 *   **Extensão para Tratar Erros Formalmente:**
     1.  **Sort de Erro e Valores de Erro:**
-        Poderia-se introduzir um sort `Result[T]` que é uma união disjunta de `T` e um sort `ErrorValue`. As operações como `get` retornariam `Result[Natural]`.
+        Poderia-se introduzir um sort `ResultNatural` que é uma união disjunta de `Natural` e um sort `ErrorValueNatural`. As operações como `get` retornariam `ResultNatural`.
         `get: VectorNatural x Natural --> ResultNatural`
-        Axiomas adicionais definiriam quando `get` retorna um `ErrorValue`.
-        Ex: `lt(idx, length(vn)) = false AND eq(isEmpty(vn),false) = true => get(vn, idx) = error_index_out_of_bounds`
-        Isso requer que o sort `ResultNatural` e `error_index_out_of_bounds` sejam especificados.
+        Axiomas adicionais definiriam quando `get` retorna um `ErrorValueNatural`.
+        Ex: `lt(idx, length(vn)) = false AND isEmpty(vn) = false => get(vn, idx) = makeErrorNatural(errorIndexOutOfBounds)` (assumindo `makeErrorNatural` e `errorIndexOutOfBounds` definidos).
 
     2.  **Predicados de Definibilidade (para Operações Parciais):**
-        Pode-se introduzir um predicado `isDefined_get: VectorNatural x Natural --> Boolean`.
-        Axiomas definiriam `isDefined_get`. Ex: `isDefined_get(vn,idx) = lt(idx, length(vn))`.
-        Os axiomas para `get` seriam então condicionados por `isDefined_get(vn,idx) = true`.
-        Isso formaliza a parcialidade mas não especifica o comportamento de erro.
+        Introduzir um predicado `isDefinedGet: VectorNatural x Natural --> Boolean`.
+        Axiomas definiriam `isDefinedGet`. Ex: `isDefinedGet(vn,idx) = lt(idx, length(vn))`.
+        Os axiomas para `get` seriam então condicionados por `isDefinedGet(vn,idx) = true`.
 
     3.  **Pré-condições Explícitas na Especificação (fora dos axiomas equacionais):**
         Muitas linguagens de especificação permitem associar pré-condições formais às operações.
         `get(vn, idx)`
         **pre:** `lt(idx, length(vn)) = true`
-        Os axiomas equacionais então só se aplicam quando a pré-condição é satisfeita. A semântica de invocar uma operação quando sua pré-condição é falsa é geralmente de "comportamento indefinido" ou um erro catastrófico.
+        Os axiomas equacionais então só se aplicam quando a pré-condição é satisfeita.
 
 A escolha de como tratar erros e operações parciais é uma decisão de design importante na especificação. A especificação fornecida em 8.2 deixa `get` e `set` parciais para índices inválidos (exceto V9 para `set` em `emptyVector`), o que é comum em especificações algébricas focadas na semântica dos casos "bem-sucedidos". Implementações concretas (como `PyVectorNatural`) então precisam decidir como manifestar essa parcialidade (e.g., levantando exceções).
 
-Este capítulo introduziu o TAD `VectorNatural`, delineando sua definição abstrata, relevância e uma especificação algébrica formal. Discutimos o projeto e a implementação de uma classe Python `PyVectorNatural` com tipagem estática, e demonstramos como os axiomas da especificação podem ser traduzidos em testes de propriedade usando Hypothesis para verificar a corretude da implementação. Finalmente, analisamos a complexidade algorítmica das operações da nossa classe `PyVectorNatural` imutável. O próximo capítulo, Capítulo 9, continuará a exploração de estruturas de dados lineares, focando no TAD `List`, que, embora compartilhe algumas similaridades com `Vector`, é tipicamente especificado e implementado com um conjunto diferente de operações fundamentais (e.g., `cons`, `head`, `tail`) e possui diferentes características de desempenho, especialmente em implementações baseadas em listas encadeadas.
+Este capítulo introduziu o TAD `VectorNatural`, delineando sua definição abstrata, relevância e uma especificação algébrica formal, incluindo a adição de operações como `pop`, `head` e `insertAtIndex` (com axiomas baseados em propriedades para esta última). Discutimos o projeto e a implementação de uma classe Python `PyVectorNatural` com tipagem estática, e demonstramos como os axiomas da especificação podem ser traduzidos em testes de propriedade usando Hypothesis para verificar a corretude da implementação. Finalmente, analisamos a complexidade algorítmica das operações da nossa classe `PyVectorNatural` imutável. O próximo capítulo, Capítulo 9, continuará a exploração de estruturas de dados lineares, focando no TAD `List`. O TAD `List`, embora conceitualmente similar a uma sequência, é tipicamente caracterizado por um conjunto diferente de operações construtoras fundamentais (como `nil` e `cons` para adição no início) e, consequentemente, diferentes perfis de desempenho, especialmente em implementações baseadas em nós encadeados, contrastando com a abordagem baseada em array do `Vector`.
 
 ---
 ## REFERÊNCIAS BIBLIOGRÁFICAS
@@ -760,4 +758,4 @@ LUCIA, B.; RAGHAVAN, P. (Eds.). **Proceedings of the 30th Annual ACM-SIAM Sympos
 
 PYTHON SOFTWARE FOUNDATION. **Python `list` documentation**. Disponível em: https://docs.python.org/3/tutorial/datastructures.html#more-on-lists. Acesso em: 10 ago. 2023.
 *   *Resumo: A documentação oficial do Python para o tipo `list` é essencial para entender a estrutura de dados subjacente que a classe `PyVectorNatural` utiliza. Detalha as operações disponíveis na lista Python e suas complexidades de tempo (amortizadas), informando a análise da Seção 8.5.*
-*   ---
+---
