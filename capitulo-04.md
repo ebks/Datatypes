@@ -814,4 +814,4 @@ KAPUR, D.; NARENDRAN, P.; ZHANG, H. Automating inductionless induction using tes
 WIRSING, M. Algebraic Specification. In: VAN LEEUWEN, J. (Ed.). **Handbook of Theoretical Computer Science, Volume B: Formal Models and Semantics**. Amsterdam: Elsevier; Cambridge, MA: MIT Press, 1990. p. 675-788.
 *   *Resumo: Um capítulo de handbook extremamente completo e autoritativo sobre especificação algébrica. Cobre todos os aspectos principais, desde a sintaxe e semântica (inicial, final) até as propriedades das especificações (consistência, completezas, proteção) e métodos de estruturação, sendo uma referência canônica para os temas do Capítulo 4.*
 
-*   ---
+---
