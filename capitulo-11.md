@@ -58,34 +58,34 @@ Vamos traçar a sequência de operações sobre a fila de `Natural`s. Usaremos $
 
 2.  **`q1 = enqueue(q0, natural_5)`**
     *   A operação `enqueue` adiciona `natural_5` ao final da fila `q0`.
-    *   Estado da fila `q1`: $\langle \text{natural_5} \rangle$ (início: `natural_5`, fim: `natural_5`)
+    *   Estado da fila `q1`: $\langle$ `natural_5` $\rangle$ (início: `natural_5`, fim: `natural_5`)
 
 3.  **`q2 = enqueue(q1, natural_10)`**
     *   A operação `enqueue` adiciona `natural_10` ao final da fila `q1`.
-    *   Estado da fila `q2`: $\langle \text{natural_5, natural_10} \rangle$ (início: `natural_5`, fim: `natural_10`)
+    *   Estado da fila `q2`: $\langle$ `natural_5, natural_10`$\rangle$ (início: `natural_5`, fim: `natural_10`)
 
 4.  **`val1 = front(q2)`**
     *   A operação `front` retorna o elemento no início da fila `q2` (que é `natural_5`) sem removê-lo.
     *   Resultado da operação: `val1 = natural_5`.
-    *   Estado da fila `q2` (após `front`): $\langle \text{natural_5, natural_10} \rangle$ (permanece inalterado)
+    *   Estado da fila `q2` (após `front`): $\langle$ `natural_5, natural_10` $\rangle$ (permanece inalterado)
 
 5.  **`q3 = dequeue(q2)`**
     *   A operação `dequeue` remove o elemento do início da fila `q2` (que é `natural_5`).
-    *   Estado da fila `q3`: $\langle \text{natural_10} \rangle$ (início: `natural_10`, fim: `natural_10`)
+    *   Estado da fila `q3`: $\langle$ `natural_10` $\rangle$ (início: `natural_10`, fim: `natural_10`)
 
 6.  **`q4 = enqueue(q3, natural_3)`**
     *   A operação `enqueue` adiciona `natural_3` ao final da fila `q3`.
-    *   Estado da fila `q4`: $\langle \text{natural_10, natural_3} \rangle$ (início: `natural_10`, fim: `natural_3`)
+    *   Estado da fila `q4`: $\langle$ `natural_10, natural_3` $\rangle$ (início: `natural_10`, fim: `natural_3`)
 
 7.  **`val2 = front(q4)`**
     *   A operação `front` retorna o elemento no início da fila `q4` (que é `natural_10`).
     *   Resultado da operação: `val2 = natural_10`.
-    *   Estado da fila `q4` (após `front`): $\langle \text{natural_10, natural_3} \rangle$ (permanece inalterado)
+    *   Estado da fila `q4` (após `front`): $\langle$ `natural_10, natural_3` $\rangle$ (permanece inalterado)
 
 Portanto, ao final da sequência:
 *   `val1` é `natural_5`.
 *   `val2` é `natural_10`.
-*   O estado final da fila `q4` é $\langle \text{natural_10, natural_3} \rangle$.
+*   O estado final da fila `q4` é $\langle$ `natural_10, natural_3` $\rangle$.
 
 # 11.2 Especificação Algébrica Formal do TAD `Queue[T]`
 
