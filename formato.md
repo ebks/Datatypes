@@ -7,13 +7,13 @@
 1.  **Contagem de Palavras:** O capítulo deve ter aproximadamente [7000 a 100000] palavras. O conteúdo deve ser denso e bem desenvolvido, evitando superficialidade para atingir a meta.
 2.  **Linguagem:** Utilizar linguagem estritamente formal e acadêmica, em Português (Brasil).
 3.  **Parágrafo Introdutório do Capítulo:**
+    *   Antes de iniciar o parágrafo introdutório, colocar o título do capítulo com a seguinte formatação: --- (pular de linha) # Capítulo XX (pular de Linha) # Título do Capítulo (pular de linha) --- (pular de linha)
     *   Iniciar o capítulo com um único parágrafo extenso (e.g., 200-300 palavras).
     *   Este parágrafo NÃO deve ser numerado como seção.
     *   Deve resumir o conteúdo e os objetivos do capítulo de forma abrangente, sem mencionar números ou nomes de seções específicas que virão a seguir.
 4.  **Seções e Subseções:**
     *   Seções de **Nível 1** devem ser numeradas como `XX.1`, `XX.2`, etc. (onde `XX` é o número do capítulo). Título: `# XX.N TÍTULO DA SEÇÃO NÍVEL 1`.
-    *   Seções de **Nível 2** devem ser numeradas como `XX.Y.1`, `XX.Y.2`, etc. Título: `## XX.Y.Z TÍTULO DA SEÇÃO NÍVEL 2`.
-    *   Seções de **Nível 3 (e inferiores)**:
+    *   Seções de **Nível 2 (e inferiores)**:
         *   **NÃO DEVEM SER NUMERADAS.**
         *   O título deve ser formatado apenas em **negrito**. Exemplo: `**Título da Sub-Subseção em Negrito**`.
 5.  **Exercícios:**
@@ -22,6 +22,8 @@
     *   O enunciado do exercício deve ser claro.
     *   A resolução deve vir IMEDIATAMENTE após o enunciado do exercício.
     *   A resolução deve começar com a palavra "**Resolução:**" em negrito.
+    *   Nomes de tipos, operações e axiomas devem estar em Inglês
+   
     
 6.  **Parágrafo de Conclusão do Capítulo:**
     *   Finalizar o capítulo com um parágrafo conciso (e.g., 100-150 palavras).
@@ -80,5 +82,4 @@
 
 **III. FOCO DO CONTEÚDO (ESPECÍFICO PARA PARTE I, se aplicável ao capítulo atual):**
 
-1.  **Exemplos de TADs (para Capítulos 1-7):** Ao ilustrar conceitos de especificação, reescrita, análise, refinamento, teste e modularização, os exemplos devem se concentrar **primariamente** nos TADs `Boolean`, `Natural` (e.g., Peano) e `NaturalList` (lista de `Natural`s). Evitar estruturas de dados mais complexas (Pilhas, Filas, Árvores, etc.) como exemplos principais na Parte I.
-
+1.  **Exemplos de TADs (para Capítulos 1-7):** Ao ilustrar conceitos de especificação, reescrita, análise, refinamento, teste e modularização, os exemplos devem se concentrar **primariamente** nos TADs `Boolean`, `Natural`, `Integer`, `Boolean` e suas listas como `NaturalList` (lista de `Natural`s). 
