@@ -4,11 +4,11 @@
 
 **I. ESTRUTURA E CONTEÚDO GERAL DO CAPÍTULO:**
 
-1.  **Contagem de Palavras:** O capítulo deve ter aproximadamente [7000 a 100000] palavras. O conteúdo deve ser denso e bem desenvolvido, evitando superficialidade para atingir a meta.
+1.  **Contagem de Palavras:** O capítulo deve ter aproximadamente [8000 a 100000] palavras. O conteúdo deve ser denso e bem desenvolvido, evitando superficialidade para atingir a meta.
 2.  **Linguagem:** Utilizar linguagem estritamente formal e acadêmica, em Português (Brasil).
 3.  **Parágrafo Introdutório do Capítulo:**
     *   Antes de iniciar o parágrafo introdutório, colocar o título do capítulo com a seguinte formatação: --- (pular de linha) # Capítulo XX (pular de Linha) # Título do Capítulo (pular de linha) --- (pular de linha)
-    *   Iniciar o capítulo com um único parágrafo extenso (e.g., 200-300 palavras).
+    *   Em seguida, vem um único parágrafo introdutório extenso (e.g., 200-300 palavras).
     *   Este parágrafo NÃO deve ser numerado como seção.
     *   Deve resumir o conteúdo e os objetivos do capítulo de forma abrangente, sem mencionar números ou nomes de seções específicas que virão a seguir.
 4.  **Seções e Subseções:**
