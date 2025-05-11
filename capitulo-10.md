@@ -56,20 +56,20 @@ Vamos traçar a sequência de operações sobre a pilha de `Natural`s:
     *   Estado da pilha `s0`: $\langle \rangle$ (pilha vazia)
 
 2.  **`s1 = push(natural_3, s0)`**
-    *   Estado da pilha `s1`: $\langle \text{natural_3} \rangle$ (topo é `natural_3`)
+    *   Estado da pilha `s1`: $\langle$ `natural_3` $\rangle$ (topo é `natural_3`)
 
 3.  **`s2 = push(natural_7, s1)`**
-    *   Estado da pilha `s2`: $\langle \text{natural_7, natural_3} \rangle$ (topo é `natural_7`)
+    *   Estado da pilha `s2`: $\langle$ `natural_7, natural_3` $\rangle$ (topo é `natural_7`)
 
 4.  **`s3 = pop(s2)`**
-    *   Estado da pilha `s3`: $\langle \text{natural_3} \rangle$ (topo é `natural_3`)
+    *   Estado da pilha `s3`: $\langle$ `natural_3` $\rangle$ (topo é `natural_3`)
 
 5.  **`result = top(s3)`**
     *   Resultado da operação: `result = natural_3`.
-    *   Estado da pilha `s3` (após `top`): $\langle \text{natural_3} \rangle$.
+    *   Estado da pilha `s3` (após `top`): $\langle$ `natural_3` $\rangle$.
 
 Portanto, ao final da sequência:
-*   O estado da pilha `s3` é $\langle \text{natural_3} \rangle$.
+*   O estado da pilha `s3` é $\langle$ `natural_3` $\rangle$.
 *   O valor de `result` é `natural_3`.
 
 # 10.2 Especificação Algébrica Formal do TAD `Stack[T]`
