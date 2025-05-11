@@ -1079,6 +1079,6 @@ HYPOTHESIS. **Hypothesis documentation**. Disponível em: https://hypothesis.rea
 MACIVER, D. R. **Hypothesis: A new approach to property-based testing**. Apresentado em: PyCon US 2015, Montréal, QC, Canada. Disponível em: https://www.youtube.com/watch?v=E8LdYJ2jYlE. Acesso em: 10 ago. 2023.
 *   *Resumo: Uma apresentação do criador do Hypothesis, David R. MacIver, que explica a filosofia por trás da biblioteca, suas principais características e como ela se diferencia de outras abordagens de teste. Fornece insights valiosos sobre o design e a aplicação prática do Hypothesis.*
 
-PERCIVAL, H. J. W. **Test-Driven Development with Python**: Obey the Testing Goat: Using Django, Selenium, and JavaScript. 2. ed. Sebastopol, CA: O'Reilly Media, 2017. (Capítulos sobre testes mais avançados podem tangenciar PBT ou seus benefícios).
+PERCIVAL, H. J. W. **Test-Driven Development with Python**: Obey the Testing Goat: Using Django, Selenium, and JavaScript. 2. ed. Sebastopol, CA: O'Reilly Media, 2017. 
 *   *Resumo: Embora o foco principal seja TDD e testes de integração/funcionais com Django, este livro prático sobre teste em Python fornece um excelente contexto sobre a cultura de teste em Python. Discussões sobre como escrever testes eficazes e robustos são relevantes, e o PBT complementa as técnicas de TDD.*
-*   ---
+---
