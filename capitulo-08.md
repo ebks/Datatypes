@@ -124,36 +124,36 @@ for all vec: Vector, elem, newElem, valToInsert: T, n: Natural, idx, k, insertId
 
 **END SPEC**
 
-A especificação `Vector[ParamT: ElementType]` define um Tipo Abstrato de Dados para vetores genéricos. `ElementType` é uma especificação de parâmetro formal que apenas introduz um sort `T` para os elementos. A especificação `Vector` importa `ParamT` (fornecendo `T`), `Natural` (para índices e comprimento) e `Boolean`. O sort principal é `Vector`. As operações incluem construtores (`emptyVector`, `append`), observadores (`isEmpty`, `length`, `get`, `head`) e operações de modificação (`set`, `pop`, `insertAtIndex`). Os axiomas (V1)-(V16) definem o comportamento dessas operações. As variáveis `vec`, `elem`, `newElem`, `valToInsert`, `n`, `idx`, `k`, `insertIdx` são universalmente quantificadas sobre os sorts apropriados (`Vector`, `T`, ou `Natural`). (V1)-(V4) definem `isEmpty` e `length`. (V5)-(V6) definem `get`. (V7)-(V9) definem `set`. (V10)-(V11) definem `pop`. (V12) define `head`. (V13)-(V16) são axiomas de propriedade para `insertAtIndex`, assumindo que `insertIdx` é válido ($0 \le \text{insertIdx} \le \text{length(vec)}$) e `k` também é válido nos respectivos contextos.
+A especificação `Vector[ParamT: ElementType]` define um Tipo Abstrato de Dados para vetores genéricos. `ElementType` é uma especificação de parâmetro formal que apenas introduz um sort `T` para os elementos. A especificação `Vector` importa `ParamT` (fornecendo `T`), `Natural` (para índices e comprimento) e `Boolean`. O sort principal é `Vector`. As operações incluem construtores (`emptyVector`, `append`), observadores (`isEmpty`, `length`, `get`, `head`) e operações de modificação (`set`, `pop`, `insertAtIndex`). Os axiomas (V1)-(V16) definem o comportamento dessas operações. As variáveis `vec`, `elem`, `newElem`, `valToInsert`, `n`, `idx`, `k`, `insertIdx` são universalmente quantificadas sobre os sorts apropriados (`Vector`, `T`, ou `Natural`). (V1)-(V4) definem `isEmpty` e `length`. (V5)-(V6) definem `get`. (V7)-(V9) definem `set`. (V10)-(V11) definem `pop`. (V12) define `head`. (V13)-(V16) são axiomas de propriedade para `insertAtIndex`, assumindo que `insertIdx` é um índice válido para inserção ($0 \le \text{insertIdx} \le \text{length(vec)}$) e `k` também é válido nos respectivos contextos.
 
 ## 8.2.1 Análise de Corretude e Completeza da Especificação `Vector[T]`
 
-Antes de prosseguir para a implementação, é crucial analisar a especificação algébrica `Vector[T]` (da forma apresentada na Seção 8.2, incluindo os axiomas V1-V16) quanto às propriedades de consistência e completeza suficiente.
+Analisaremos a especificação algébrica `Vector[T]` (da Seção 8.2, axiomas V1-V16) quanto à consistência e completeza suficiente.
 
 **Consistência:**
-A consistência da especificação `Vector[T]` depende da consistência das especificações importadas (`Natural`, `Boolean`, e o parâmetro `T`) e da forma como os novos axiomas (V1-V16) interagem.
-1.  **Proteção dos Tipos Importados:** Os axiomas de `Vector[T]` definem operações que produzem `Boolean` (`isEmpty`), `Natural` (`length`), ou `T` (`get`, `head`). É fundamental que esses axiomas não introduzam novas igualdades ou contradições nos sorts `Boolean`, `Natural`, ou `T`. A estrutura dos axiomas parece preservar essa distinção.
-2.  **Consistência Interna de `Vector[T]`:** Precisamos garantir que não possamos derivar, por exemplo, `emptyVector = append(emptyVector, some_T_elem)`. Os axiomas (V1) e (V2) e `true != false` de `Boolean` implicam que `append(vec, elem)` nunca é igual a `emptyVector`. A distinção entre diferentes vetores não-vazios dependeria de observadores como `length`, `head` ou `get`.
-3.  **Modelo Inicial:** O modelo inicial para `Vector[T]` consistiria em sequências finitas de elementos de `T`. As operações padrão sobre sequências fornecem um modelo matemático consistente para os axiomas dados.
+A especificação `Vector[T]` depende da consistência de `Natural`, `Boolean` e `T`.
+1.  **Proteção dos Tipos Importados:** Os axiomas de `Vector[T]` definem operações que produzem `Boolean`, `Natural`, ou `T`. A estrutura dos axiomas (e.g., para `length`, `isEmpty`) parece preservar as distinções nos tipos de resultado.
+2.  **Consistência Interna de `Vector[T]`:** `emptyVector` é distinto de `append(vec, elem)` (via V1, V2, e `true != false`). A distinção entre vetores não vazios é mantida por `length`, `head`, ou `get`.
+3.  **Modelo Inicial:** O modelo de sequências finitas de elementos `T` com operações padrão é consistente com os axiomas.
 
-A especificação parece **consistente**, desde que `Natural` e `Boolean` sejam consistentes e o tipo `T` do parâmetro não introduza problemas. As operações de acesso (`get`, `head`) são parciais nos axiomas para entradas inválidas, o que evita contradições.
+A especificação parece **consistente**. As operações de acesso (`get`, `head`) são parciais nos axiomas para entradas inválidas, evitando contradições. O axioma (V9) `set(emptyVector, k, newElem) = emptyVector` define um comportamento para um caso inválido.
 
 **Completeza Suficiente:**
 Analisamos as operações não-construtoras (`isEmpty`, `length`, `get`, `set`, `pop`, `head`, `insertAtIndex`) aplicadas a termos formados pelos construtores `emptyVector` e `append(vec, elem)`.
 
 1.  **`isEmpty(v: Vector)`:** Suficientemente completa (casos V1, V2).
 2.  **`length(v: Vector)`:** Suficientemente completa (casos V3, V4, por indução).
-3.  **`get(v: Vector, idx: Natural)`:** Suficientemente completa para índices válidos em vetores não-vazios (via V5, V6). Parcial e não completa para `get(emptyVector,...)` e índice fora dos limites.
+3.  **`get(v: Vector, idx: Natural)`:** Suficientemente completa para índices válidos em vetores não-vazios (via V5, V6). Parcial; não completa para `get(emptyVector,...)` e índice fora dos limites superiores.
 4.  **`set(v: Vector, k: Natural, newElem: T)`:** Suficientemente completa para índices válidos (via V7, V8) e para `emptyVector` (via V9). Parcial para índices inválidos em vetores não-vazios.
 5.  **`pop(v: Vector)`:** Suficientemente completa (casos V10, V11).
-6.  **`head(v: Vector)`:** Suficientemente completa para vetores não-vazios (via V12 e a completeza de `get`). Parcial para `emptyVector`.
-7.  **`insertAtIndex(v: Vector, insertIdx: Natural, valToInsert: T)`:** Os axiomas (V13)-(V16) são de propriedade, não definem `insertAtIndex` construtivamente em termos de `emptyVector` e `append`. Portanto, com apenas estes axiomas, `insertAtIndex` **não é suficientemente completa** no sentido de reduzir a um termo construtor `Vector`. Para torná-la construtivamente completa, seriam necessários axiomas recursivos baseados nos construtores `emptyVector` e `append` (ou `nil`/`cons`).
+6.  **`head(v: Vector)`:** Suficientemente completa para vetores não-vazios (via V12 e a completeza de `get` para índice zero). Parcial para `emptyVector`.
+7.  **`insertAtIndex(v: Vector, insertIdx: Natural, valToInsert: T)`:** Os axiomas (V13)-(V16) são de propriedade, não definem `insertAtIndex` construtivamente em termos de `emptyVector` e `append`. Portanto, com apenas estes axiomas, `insertAtIndex` **não é suficientemente completa** no sentido de reduzir a um termo construtor `Vector`.
 
 **Conclusão da Análise:**
-*   **Consistência:** A especificação `Vector[T]` (com V1-V12 e axiomas de propriedade V13-V16) parece consistente.
-*   **Completeza Suficiente:** As operações `isEmpty`, `length`, `pop` são suficientemente completas. `get`, `head`, `set` são parcialmente definidas e, portanto, não totalmente completas sem um tratamento explícito de erro ou pré-condições para todos os casos. `insertAtIndex` não é definida de forma construtiva, apenas por propriedades.
+*   **Consistência:** Provavelmente consistente.
+*   **Completeza Suficiente:** `isEmpty`, `length`, `pop` são. `get`, `head`, `set` são parcialmente completas. `insertAtIndex` não é definida construtivamente.
 
-Para uma especificação mais robusta, o tratamento de casos parciais para `get`, `head`, `set` e a definição construtiva de `insertAtIndex` precisariam ser explicitados.
+Para robustez, o tratamento de casos parciais (e.g., `get` em `emptyVector`) precisaria ser explicitado, talvez com um tipo `Result[T]` ou pré-condições formais.
 
 **Exercício:**
 
@@ -199,9 +199,9 @@ for all vec: Vector, elemToFind, elemInList: T
 
 **END SPEC**
 
-A especificação `VectorWithContains` é parametrizada por `ParamT` que satisfaz `ElementTypeWithEq`. Ela importa os TADs necessários e a especificação base `Vector[ParamT]` (que define `emptyVector`, `append`, etc.). A nova operação `contains` verifica se um elemento `elemToFind` está presente no `Vector`.
+A especificação `VectorWithContains` é parametrizada por `ParamT` que satisfaz `ElementTypeWithEq`. Ela importa os TADs necessários e a especificação base `Vector[ParamT]` (que define `emptyVector`, `append`, etc.). A nova operação `contains` verifica se um elemento `elemToFind` do tipo `T` está presente no `Vector`.
 O axioma (VC1) estabelece que um elemento nunca está contido em um `emptyVector`.
-O axioma (VC2) define `contains` recursivamente: `elemToFind` está em `append(vec, elemInList)` se `elemToFind` é igual ao elemento recém-anexado `elemInList` (usando `eqT`), ou se `elemToFind` já estava presente no vetor original `vec`.
+O axioma (VC2) define `contains` recursivamente: `elemToFind` está em `append(vec, elemInList)` se `elemToFind` é igual ao elemento recém-anexado `elemInList` (usando `eqT`), ou se `elemToFind` já estava presente no vetor original `vec`. A operação `or` do TAD `Boolean` combina essas duas possibilidades.
 
 # 8.3 Projeto e Implementação em Python com Tipagem Estática (MyPy)
 
@@ -242,8 +242,8 @@ class PyVector(Generic[T]):
         # Checks if the vector is empty.
         return not self._elements 
 
-    def length(self) -> int: 
-        # Returns the number of elements (Natural, represented by int >= 0).
+    def length(self) -> int: # Length is a Natural, represented by int >= 0
+        # Returns the number of elements.
         return len(self._elements)
 
     def get(self, index: int) -> T: 
@@ -259,6 +259,7 @@ class PyVector(Generic[T]):
         # Raises IndexError if invalid index.
         if not (isinstance(index, int) and index >= 0):
             raise TypeError("Index must be a non-negative integer (Natural).")
+        # Type of 'value' is T, checked by MyPy statically based on PyVector[T] instantiation.
         if not (0 <= index < len(self._elements)):
             raise IndexError("Vector index out of range.")
         
@@ -269,7 +270,7 @@ class PyVector(Generic[T]):
     def pop(self) -> PyVector[T]:
         # Returns a NEW PyVector with the last element removed (immutable style).
         if self.is_empty():
-            return PyVector() # Return an empty vector of unknown T type for consistency
+            return PyVector() 
         
         new_elements = self._elements[:-1] 
         return PyVector(new_elements)
@@ -319,7 +320,8 @@ class PyVector(Generic[T]):
             elements_as_strings = [str(elem) for elem in self._elements]
             return "[" + ", ".join(elements_as_strings) + "]"
 ```
-O código Python acima, no arquivo `py_vector.py`, define a classe genérica `PyVector[T]`. Ela é parametrizada pelo tipo `T`. Internamente, usa uma lista Python `_elements`. O construtor `__init__` permite inicialização opcional. `empty_vector()` retorna um `PyVector` vazio. Os métodos `append`, `set_element`, `pop`, `insert_at_index` e `prepend` são imutáveis. `is_empty`, `length`, `get`, e `head` são observadores. Validações de índice e tratamento de erro via exceções são incluídos. Métodos `__eq__`, `__repr__`, `to_list` e `to_string` são fornecidos.
+O código Python acima, no arquivo `py_vector.py`, define a classe genérica `PyVector[T]`.
+A classe é parametrizada pelo tipo `T`. Internamente, usa uma lista Python `_elements`. O construtor `__init__` permite inicialização opcional. `empty_vector()` retorna um `PyVector` vazio. Os métodos `append`, `set_element`, `pop`, `insert_at_index` e `prepend` são imutáveis. `is_empty`, `length`, `get`, e `head` são observadores. Validações de índice e tratamento de erro via exceções são incluídos. Métodos `__eq__`, `__repr__`, `to_list` e `to_string` são fornecidos.
 
 **Exercício:**
 
@@ -362,7 +364,7 @@ from py_vector import PyVector
 from typing import TypeVar, Any
 
 T_elements = TypeVar('T_elements') 
-st_element_type = st.integers(min_value=-50, max_value=50) 
+st_element_type = st.integers(min_value=-50, max_value=50) # Using integers for T
 
 st_py_vector = st.builds(
     PyVector[int], 
@@ -532,7 +534,7 @@ def test_V16_get_after_insert_idx_after_insert(data: tuple[PyVector[int], int, i
     assume((k - 1) >= insert_idx) 
     assert vec_after_insert.get(k) == vn.get(k - 1)
 ```
-Os testes de propriedade acima para os axiomas (V1)-(V16) são generalizados para `PyVector[int]`. As estratégias e a lógica dos testes são adaptadas para o tipo genérico `T` (instanciado como `int` para teste). `assume` é usado para as premissas condicionais. O teste para (V9) verifica o comportamento de exceção da implementação Python.
+Os testes de propriedade para os axiomas (V1)-(V16) são generalizados para `PyVector[int]`. As estratégias e a lógica dos testes são adaptadas para o tipo genérico `T` (instanciado como `int` para teste). `assume` é usado para as premissas condicionais. O teste para (V9) verifica o comportamento de exceção da implementação Python.
 
 **Exercício:**
 
@@ -545,10 +547,8 @@ Um possível axioma para a operação `prepend: Vector[T] x T -> Vector[T]` (que
 
 @given(vn=st_py_vector, elem=st_element_type)
 def test_length_of_prepend(vn: PyVector[int], elem: int) -> None:
-    """
-    Tests the axiom: length(prepend(vn, elem)) = succ(length(vn))
-    Python implementation: (vn.prepend(elem)).length() == vn.length() + 1
-    """
+    # Test the axiom: length(prepend(vn, elem)) = succ(length(vn))
+    # Python implementation: (vn.prepend(elem)).length() == vn.length() + 1
     original_length: int = vn.length()
     prepended_vector: PyVector[int] = vn.prepend(elem) # Assumes prepend is available
     length_after_prepend: int = prepended_vector.length()
@@ -612,10 +612,10 @@ A especificação da Seção 8.2 já inclui `insertAtIndex` e os axiomas (V13)-(
 *   (V14): `get(insertAtIndex(vec, insertIdx, valToInsert), insertIdx) = valToInsert`
 *   (V15): `lt(k, insertIdx) = true => get(insertAtIndex(vec, insertIdx, valToInsert), k) = get(vec, k)`
 *   (V16): `lt(insertIdx, k) = true AND lt(k, succ(length(vec))) = true => get(insertAtIndex(vec, insertIdx, valToInsert), k) = get(vec, pred(k))`
-Estes axiomas definem `insertAtIndex` em termos de seus efeitos observáveis, adequados para PBT.
+Estes axiomas definem `insertAtIndex` em termos de seus efeitos observáveis.
 
 **Parte b) Implementação Python para `insert_at_index` em `PyVector[T]`**
-A implementação na Seção 8.3:
+A implementação fornecida na Seção 8.3 para `PyVector[T]` é:
 ```python
 # py_vector.py (método relevante da classe PyVector[T])
 # ...
@@ -637,26 +637,20 @@ A implementação na Seção 8.3:
 # ...
 ```
 Análise da implementação:
-1.  **Estilo funcional/imutável:** Sim, retorna um novo `PyVector`.
-2.  **Validação de `index`:** Sim, $0 \le \text{index} \le \text{length()}$ é verificado. Tipo `int >= 0` também.
-3.  **Validação de `value`:** O tipo `T` é tratado por MyPy.
-4.  **Exceções:** `TypeError` e `IndexError` são levantadas corretamente.
-A implementação está consistente com os requisitos.
+1.  Estilo funcional/imutável: Sim.
+2.  Validação de `index`: Sim, $0 \le \text{index} \le \text{length()}$ e tipo.
+3.  Validação de `value`: O tipo `T` é tratado por MyPy.
+4.  Exceções: `TypeError` e `IndexError` são levantadas.
+A implementação está consistente.
 
 **Parte c) Testes de Propriedade para `insert_at_index` em `PyVector[T]`**
 Os testes da Seção 8.4:
 *   `test_V13_length_after_insert`: Correto.
 *   `test_V14_get_at_insert_index_after_insert`: Correto.
-*   `test_V15_get_before_insert_idx_after_insert`: Correto com as `assume`s:
-    `assume(k < insert_idx)`
-    `assume(k < vn.length())` (importante para `vn.get(k)` ser válido).
-*   `test_V16_get_after_insert_idx_after_insert`: Correto com as `assume`s:
-    `assume(insert_idx < k)`
-    `assume(k < vec_after_insert.length())`
-    `assume((k - 1) >= 0)`
-    `assume((k - 1) < vn.length())` (importante para `vn.get(k-1)` ser válido).
+*   `test_V15_get_before_insert_idx_after_insert`: Correto com as `assume`s.
+*   `test_V16_get_after_insert_idx_after_insert`: Correto com as `assume`s.
 
-Os testes propostos na Seção 8.4 cobrem adequadamente as propriedades (V13)-(V16) da operação `insertAtIndex`. As condições `assume` são cruciais para refletir as premissas dos axiomas e garantir a validade dos acessos `get`.
+Os testes propostos na Seção 8.4 cobrem adequadamente as propriedades (V13)-(V16) da operação `insertAtIndex`.
 
 Este capítulo introduziu o TAD `Vector[T]`, generalizando-o para um tipo de elemento `T`. Cobrimos sua definição abstrata, relevância, uma especificação algébrica parametrizada (incluindo análise de corretude/completeza e extensão com `insertAtIndex`), e uma implementação Python genérica `PyVector[T]` com tipagem estática. Demonstramos como os axiomas da especificação podem ser traduzidos em testes de propriedade usando Hypothesis para verificar a corretude da implementação. Analisamos a complexidade algorítmica das operações. O próximo capítulo, Capítulo 9, continuará a exploração de estruturas de dados lineares, focando no TAD `List[T]`. Este TAD, embora também represente uma sequência, é tipicamente caracterizado por construtores como `nil` e `cons` (adição no início), o que leva a diferentes perfis de desempenho e abordagens de especificação e implementação, especialmente quando se consideram representações como listas encadeadas.
 
