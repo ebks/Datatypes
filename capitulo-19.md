@@ -3,23 +3,23 @@
 # Tipo Abstrato de Dado HashTable
 ---
 
-Concluindo nossa jornada pela Parte IV, dedicada a estruturas de dados para coleções e relações, este capítulo se aprofunda no Tipo Abstrato de Dados (TAD) `HashTable[K,V]`, ou Tabela Hash. Enquanto o capítulo anterior introduziu o TAD `Map[K,V]` de forma abstrata, definindo a interface lógica e o comportamento de um mapeamento de chaves para valores, o presente capítulo foca na `HashTable` como uma das implementações mais proeminentes e eficientes deste TAD. Uma tabela hash é uma estrutura de dados que, através do uso de uma função de hash para calcular um índice (ou "balde", *bucket*) a partir de uma chave, busca oferecer desempenho em tempo médio constante, $O(1)$, para as operações fundamentais de inserção (`put`), busca (`get`) e remoção (`delete`). Este capítulo seguirá a estrutura metodológica adotada: iniciaremos com uma definição do `HashTable[K,V]` não como um novo TAD com semântica fundamentalmente distinta, mas como uma estrutura de dados concreta que *realiza* o TAD `Map[K,V]`, discutindo sua relevância, os conceitos de função de hash, colisões, estratégias de resolução de colisões (como encadeamento separado e endereçamento aberto), fator de carga e a necessidade de redimensionamento. Em seguida, apresentaremos a "especificação algébrica" do `HashTable[K,V]`, que, neste contexto, consistirá em declarar sua interface (espelhando a do `Map[K,V]`) e postular que seus axiomas de comportamento são precisamente aqueles do TAD `Map[K,V]`, indicando a obrigação de conformidade. A análise de corretude e completeza focará em como essas obrigações são satisfeitas. Posteriormente, detalharemos o projeto e a implementação de uma classe genérica `PyHashTable[K,V]` em Python, com tipagem MyPy, utilizando a técnica de encadeamento separado para resolução de colisões. A validação da corretude da implementação `PyHashTable` em relação aos axiomas do `Map` será conduzida com Teste Baseado em Propriedades usando Hypothesis. Finalmente, analisaremos a complexidade algorítmica das operações e proporemos um exercício prático.
+Concluindo nossa jornada pela Parte IV, dedicada a estruturas de dados para coleções e relações, este capítulo se aprofunda no Tipo Abstrato de Dados (TAD) `HashTable[K,V]`, ou Tabela Hash. Enquanto o capítulo anterior introduziu o TAD `Map[K,V]` de forma abstrata, definindo a interface lógica e o comportamento de um mapeamento de chaves para valores, o presente capítulo foca na `HashTable` como uma das implementações mais proeminentes e eficientes deste TAD. Uma tabela hash é uma estrutura de dados que, através do uso de uma função de hash para calcular um índice (ou "bucket", *bucket*) a partir de uma chave, busca oferecer desempenho em tempo médio constante, $O(1)$, para as operações fundamentais de inserção (`put`), busca (`get`) e remoção (`delete`). Este capítulo seguirá a estrutura metodológica adotada: iniciaremos com uma definição do `HashTable[K,V]` não como um novo TAD com semântica fundamentalmente distinta, mas como uma estrutura de dados concreta que *realiza* o TAD `Map[K,V]`, discutindo sua relevância, os conceitos de função de hash, colisões, estratégias de resolução de colisões (como encadeamento separado e endereçamento aberto), fator de carga e a necessidade de redimensionamento. Em seguida, apresentaremos a "especificação algébrica" do `HashTable[K,V]`, que, neste contexto, consistirá em declarar sua interface (espelhando a do `Map[K,V]`) e postular que seus axiomas de comportamento são precisamente aqueles do TAD `Map[K,V]`, indicando a obrigação de conformidade. A análise de corretude e completeza focará em como essas obrigações são satisfeitas. Posteriormente, detalharemos o projeto e a implementação de uma classe genérica `PyHashTable[K,V]` em Python, com tipagem MyPy, utilizando a técnica de encadeamento separado para resolução de colisões. A validação da corretude da implementação `PyHashTable` em relação aos axiomas do `Map` será conduzida com Teste Baseado em Propriedades usando Hypothesis. Finalmente, analisaremos a complexidade algorítmica das operações e proporemos um exercício prático.
 
 # 19.1 Definição Abstrata e Relevância do Tipo de Dados `HashTable[K,V]`
 
-O Tipo Abstrato de Dados `HashTable[K,V]` (Tabela Hash) não é, em si, um novo tipo abstrato com um conjunto fundamentalmente distinto de operações e axiomas em relação ao TAD `Map[K,V]` (discutido no Capítulo 18). Em vez disso, uma `HashTable` é uma **estrutura de dados concreta** e uma técnica de implementação altamente eficiente projetada para realizar as operações do TAD `Map[K,V]`. A ideia central de uma tabela hash é utilizar uma **função de hash** para transformar uma chave `K` em um índice numérico, que é então usado para localizar a posição (ou "balde", *bucket*) onde o valor `V` associado à chave deve ser armazenado ou recuperado dentro de uma estrutura de dados subjacente, tipicamente um array.
+O Tipo Abstrato de Dados `HashTable[K,V]` (Tabela Hash) não é, em si, um novo tipo abstrato com um conjunto fundamentalmente distinto de operações e axiomas em relação ao TAD `Map[K,V]` (discutido no Capítulo 18). Em vez disso, uma `HashTable` é uma **estrutura de dados concreta** e uma técnica de implementação altamente eficiente projetada para realizar as operações do TAD `Map[K,V]`. A ideia central de uma tabela hash é utilizar uma **função de hash** para transformar uma chave `K` em um índice numérico, que é então usado para localizar a posição (ou "bucket", *bucket*) onde o valor `V` associado à chave deve ser armazenado ou recuperado dentro de uma estrutura de dados subjacente, tipicamente um array.
 
 **Definição Abstrata da Estrutura e Conceitos Chave:**
 
 Embora a `HashTable` seja uma implementação, podemos descrever seus componentes e princípios abstratos:
-1.  **Array de Baldes (Buckets):** A estrutura primária é um array (ou vetor) de um tamanho fixo $M$, onde cada posição $i$ (para $0 \le i < M$) é um "balde".
-2.  **Função de Hash (`hash_function: K -> Natural` ou `K -> Integer`):** Uma função que mapeia uma chave arbitrária do tipo `K` para um número inteiro. Este número é então tipicamente mapeado para um índice de balde válido, geralmente através da operação módulo $M$: `index = hash_function(key) % M`.
-    *   Uma boa função de hash deve distribuir as chaves de forma aproximadamente uniforme pelos baldes e ser computacionalmente eficiente.
-3.  **Colisões:** Como o número de chaves possíveis geralmente excede (e muito) o número de baldes $M$, é inevitável que diferentes chaves possam ser mapeadas pela função de hash para o mesmo índice de balde. Isso é chamado de **colisão**.
-4.  **Resolução de Colisões:** Mecanismos são necessários para lidar com colisões, ou seja, para armazenar e recuperar múltiplos pares chave-valor que hasheiam para o mesmo balde. As duas estratégias principais são:
-    *   **Encadeamento Separado (Separate Chaining):** Cada balde armazena uma estrutura de dados secundária (comumente uma lista encadeada, mas poderia ser outra `Map` menor ou uma árvore de busca) que contém todos os pares chave-valor cujo hash da chave corresponde àquele balde.
-    *   **Endereçamento Aberto (Open Addressing):** Se ocorre uma colisão ao tentar inserir em um balde $i$ que já está ocupado, outras posições no array de baldes são sondadas (de acordo com uma sequência de sondagem, e.g., linear, quadrática, hashing duplo) até que um balde vazio seja encontrado. A busca segue a mesma sequência de sondagem.
-5.  **Fator de Carga ($\alpha$):** É a razão entre o número de elementos $N$ armazenados na tabela e o número de baldes $M$ (i.e., $\alpha = N/M$). O fator de carga afeta o desempenho; à medida que $\alpha$ aumenta, a probabilidade de colisões também aumenta, e o desempenho pode degradar.
+1.  **Array de buckets (Buckets):** A estrutura primária é um array (ou vetor) de um tamanho fixo $M$, onde cada posição $i$ (para $0 \le i < M$) é um "bucket".
+2.  **Função de Hash (`hash_function: K -> Natural` ou `K -> Integer`):** Uma função que mapeia uma chave arbitrária do tipo `K` para um número inteiro. Este número é então tipicamente mapeado para um índice de bucket válido, geralmente através da operação módulo $M$: `index = hash_function(key) % M`.
+    *   Uma boa função de hash deve distribuir as chaves de forma aproximadamente uniforme pelos buckets e ser computacionalmente eficiente.
+3.  **Colisões:** Como o número de chaves possíveis geralmente excede (e muito) o número de buckets $M$, é inevitável que diferentes chaves possam ser mapeadas pela função de hash para o mesmo índice de bucket. Isso é chamado de **colisão**.
+4.  **Resolução de Colisões:** Mecanismos são necessários para lidar com colisões, ou seja, para armazenar e recuperar múltiplos pares chave-valor que hasheiam para o mesmo bucket. As duas estratégias principais são:
+    *   **Encadeamento Separado (Separate Chaining):** Cada bucket armazena uma estrutura de dados secundária (comumente uma lista encadeada, mas poderia ser outra `Map` menor ou uma árvore de busca) que contém todos os pares chave-valor cujo hash da chave corresponde àquele bucket.
+    *   **Endereçamento Aberto (Open Addressing):** Se ocorre uma colisão ao tentar inserir em um bucket $i$ que já está ocupado, outras posições no array de buckets são sondadas (de acordo com uma sequência de sondagem, e.g., linear, quadrática, hashing duplo) até que um bucket vazio seja encontrado. A busca segue a mesma sequência de sondagem.
+5.  **Fator de Carga ($\alpha$):** É a razão entre o número de elementos $N$ armazenados na tabela e o número de buckets $M$ (i.e., $\alpha = N/M$). O fator de carga afeta o desempenho; à medida que $\alpha$ aumenta, a probabilidade de colisões também aumenta, e o desempenho pode degradar.
 6.  **Redimensionamento (Resizing):** Quando o fator de carga excede um certo limiar, a tabela hash é tipicamente redimensionada (geralmente para um tamanho maior, frequentemente o dobro do tamanho primo mais próximo) e todos os elementos existentes são re-hasheados e reinseridos na nova tabela maior. Isso ajuda a manter o fator de carga baixo e o desempenho eficiente.
 
 **Operações (Realizando o TAD `Map[K,V]`):**
@@ -44,61 +44,61 @@ A principal relevância das tabelas hash reside em sua capacidade de oferecer um
 3.  **Flexibilidade de Tipos de Chave:** Desde que um tipo de chave `K` possa ser hasheado (i.e., uma função de hash pode ser definida para ele) e comparado por igualdade, ele pode ser usado em uma tabela hash.
 
 **Desvantagens e Considerações:**
-*   **Desempenho no Pior Caso:** Se a função de hash for ruim (e.g., mapear muitas chaves para o mesmo balde) ou em cenários de ataque (onde chaves são escolhidas para causar colisões máximas), o desempenho pode degradar para $O(N)$ (e.g., todas as chaves caem na mesma lista encadeada).
+*   **Desempenho no Pior Caso:** Se a função de hash for ruim (e.g., mapear muitas chaves para o mesmo bucket) ou em cenários de ataque (onde chaves são escolhidas para causar colisões máximas), o desempenho pode degradar para $O(N)$ (e.g., todas as chaves caem na mesma lista encadeada).
 *   **Função de Hash:** A qualidade da função de hash é crítica.
 *   **Ordenação:** Tabelas hash geralmente não mantêm os elementos em nenhuma ordem específica (e.g., ordem de inserção ou ordem de chave), a menos que sejam variantes especializadas (como `OrderedDict` em Python antes da versão 3.7, ou `LinkedHashMap` em Java).
-*   **Uso de Espaço:** Podem usar mais espaço do que estruturas baseadas em árvores se o fator de carga for mantido muito baixo ou se houver muitos baldes vazios. O redimensionamento pode ser uma operação custosa (embora amortizada).
+*   **Uso de Espaço:** Podem usar mais espaço do que estruturas baseadas em árvores se o fator de carga for mantido muito baixo ou se houver muitos buckets vazios. O redimensionamento pode ser uma operação custosa (embora amortizada).
 
 Apesar dessas considerações, a eficiência no caso médio faz das tabelas hash uma das estruturas de dados mais importantes e amplamente utilizadas para implementações de mapeamentos.
 
 **Exercício:**
 
-Suponha uma `HashTable` com $M=10$ baldes (índices 0-9) e uma função de hash $h(k) = k \pmod{10}$. Se as seguintes chaves do tipo `Natural` são inseridas na ordem: 12, 22, 3, 13, 25, 35, usando **encadeamento separado** para resolução de colisões, descreva o estado dos baldes (quais chaves estão em cada lista de balde). Qual balde terá a lista mais longa?
+Suponha uma `HashTable` com $M=10$ buckets (índices 0-9) e uma função de hash $h(k) = k \pmod{10}$. Se as seguintes chaves do tipo `Natural` são inseridas na ordem: 12, 22, 3, 13, 25, 35, usando **encadeamento separado** para resolução de colisões, descreva o estado dos buckets (quais chaves estão em cada lista de bucket). Qual bucket terá a lista mais longa?
 
 **Resolução:**
 
-Tabela Hash com $M=10$ baldes, $h(k) = k \pmod{10}$.
+Tabela Hash com $M=10$ buckets, $h(k) = k \pmod{10}$.
 Chaves a serem inseridas: 12, 22, 3, 13, 25, 35.
 
 1.  **Inserir 12:**
     $h(12) = 12 \pmod{10} = 2$.
-    Balde 2: $\langle 12 \rangle$
+    bucket 2: $\langle 12 \rangle$
 
 2.  **Inserir 22:**
     $h(22) = 22 \pmod{10} = 2$. Colisão com 12.
-    Balde 2: $\langle 12, 22 \rangle$ (ou $\langle 22, 12 \rangle$, dependendo da política de inserção na lista do balde - vamos assumir que adiciona ao final da lista do balde).
+    bucket 2: $\langle 12, 22 \rangle$ (ou $\langle 22, 12 \rangle$, dependendo da política de inserção na lista do bucket - vamos assumir que adiciona ao final da lista do bucket).
 
 3.  **Inserir 3:**
     $h(3) = 3 \pmod{10} = 3$.
-    Balde 3: $\langle 3 \rangle$
+    bucket 3: $\langle 3 \rangle$
 
 4.  **Inserir 13:**
     $h(13) = 13 \pmod{10} = 3$. Colisão com 3.
-    Balde 3: $\langle 3, 13 \rangle$
+    bucket 3: $\langle 3, 13 \rangle$
 
 5.  **Inserir 25:**
     $h(25) = 25 \pmod{10} = 5$.
-    Balde 5: $\langle 25 \rangle$
+    bucket 5: $\langle 25 \rangle$
 
 6.  **Inserir 35:**
     $h(35) = 35 \pmod{10} = 5$. Colisão com 25.
-    Balde 5: $\langle 25, 35 \rangle$
+    bucket 5: $\langle 25, 35 \rangle$
 
-**Estado Final dos Baldes:**
-*   Balde 0: $\langle \rangle$
-*   Balde 1: $\langle \rangle$
-*   Balde 2: $\langle 12, 22 \rangle$
-*   Balde 3: $\langle 3, 13 \rangle$
-*   Balde 4: $\langle \rangle$
-*   Balde 5: $\langle 25, 35 \rangle$
-*   Balde 6: $\langle \rangle$
-*   Balde 7: $\langle \rangle$
-*   Balde 8: $\langle \rangle$
-*   Balde 9: $\langle \rangle$
+**Estado Final dos buckets:**
+*   bucket 0: $\langle \rangle$
+*   bucket 1: $\langle \rangle$
+*   bucket 2: $\langle 12, 22 \rangle$
+*   bucket 3: $\langle 3, 13 \rangle$
+*   bucket 4: $\langle \rangle$
+*   bucket 5: $\langle 25, 35 \rangle$
+*   bucket 6: $\langle \rangle$
+*   bucket 7: $\langle \rangle$
+*   bucket 8: $\langle \rangle$
+*   bucket 9: $\langle \rangle$
 
-**Balde com a Lista Mais Longa:**
-Os baldes 2, 3 e 5 contêm duas chaves cada. Todos eles têm o comprimento máximo de lista, que é 2.
-Não há um único balde com a lista "mais" longa; três baldes compartilham o comprimento máximo.
+**bucket com a Lista Mais Longa:**
+Os buckets 2, 3 e 5 contêm duas chaves cada. Todos eles têm o comprimento máximo de lista, que é 2.
+Não há um único bucket com a lista "mais" longa; três buckets compartilham o comprimento máximo.
 
 # 19.2 Especificação Algébrica Formal do TAD `HashTable[K,V]` (como Implementação de `Map[K,V]`)
 
@@ -448,13 +448,13 @@ class PyHashTable(Generic[K, V]):
 
 ```
 O código Python acima, no arquivo `py_hash_table.py`, define a classe genérica `PyHashTable[K, V]`.
-`K` é um `TypeVar` restrito a `Hashable`, e `V` é um `TypeVar` genérico. A tabela é implementada como uma lista de baldes (`_buckets`), onde cada balde é uma lista de tuplas `(chave, valor)` (encadeamento separado).
+`K` é um `TypeVar` restrito a `Hashable`, e `V` é um `TypeVar` genérico. A tabela é implementada como uma lista de buckets (`_buckets`), onde cada bucket é uma lista de tuplas `(chave, valor)` (encadeamento separado).
 O construtor `__init__` inicializa a tabela com uma capacidade inicial e um limiar para o fator de carga, que dispara o redimensionamento. `empty_hash_table()` é um método estático para criar uma tabela vazia.
-`_get_bucket_index(key)` calcula o índice do balde usando `hash(key) % len(self._buckets)`.
+`_get_bucket_index(key)` calcula o índice do bucket usando `hash(key) % len(self._buckets)`.
 `_resize_if_needed()` verifica o fator de carga e, se necessário, dobra a capacidade da tabela, re-hasheando e reinserindo todos os elementos.
-A operação `put(key, value)` calcula o índice do balde. Se a chave já existe no balde (verificado com `==` da chave), o valor é atualizado. Caso contrário, o novo par `(key, value)` é anexado à lista do balde e `_num_elements` é incrementado (a menos que seja uma chamada interna de `_resize_if_needed`). `put` chama `_resize_if_needed` antes da inserção.
-A operação `get(key)` busca a chave no balde apropriado e retorna o valor associado ou `None` se a chave não for encontrada (implementando um retorno tipo `Maybe[V]`).
-A operação `delete(key)` remove o par chave-valor do balde apropriado, se existir, e decrementa `_num_elements`.
+A operação `put(key, value)` calcula o índice do bucket. Se a chave já existe no bucket (verificado com `==` da chave), o valor é atualizado. Caso contrário, o novo par `(key, value)` é anexado à lista do bucket e `_num_elements` é incrementado (a menos que seja uma chamada interna de `_resize_if_needed`). `put` chama `_resize_if_needed` antes da inserção.
+A operação `get(key)` busca a chave no bucket apropriado e retorna o valor associado ou `None` se a chave não for encontrada (implementando um retorno tipo `Maybe[V]`).
+A operação `delete(key)` remove o par chave-valor do bucket apropriado, se existir, e decrementa `_num_elements`.
 `contains_key(key)`, `size()`, e `is_empty()` implementam as operações correspondentes do TAD `Map`.
 Métodos como `__iter__` (para iterar sobre chaves), `__len__` e `__repr__` são adicionados para conveniência e melhor integração com Python.
 Esta implementação é **mutável**; as operações `put` e `delete` modificam a tabela no local. O redimensionamento também é uma mutação interna.
@@ -468,13 +468,13 @@ Na classe `PyHashTable[K,V]`, o método `put` atualmente não retorna nada (reto
 Para modificar `put` e o redimensionamento para um estilo funcional/imutável, onde `put` retorna uma nova `PyHashTable`:
 
 1.  **Método `put` Retornando Nova Instância:**
-    *   O método `put(self, key: K, value: V) -> PyHashTable[K, V]` precisaria criar uma cópia da estrutura de baldes atual antes de fazer qualquer modificação.
-    *   A lógica de encontrar o balde e inserir/atualizar o par `(key, value)` ocorreria nesta cópia.
-    *   Ao final, uma nova instância de `PyHashTable` seria criada e retornada, contendo a estrutura de baldes modificada e o `_num_elements` atualizado. O objeto `self` original não seria alterado.
+    *   O método `put(self, key: K, value: V) -> PyHashTable[K, V]` precisaria criar uma cópia da estrutura de buckets atual antes de fazer qualquer modificação.
+    *   A lógica de encontrar o bucket e inserir/atualizar o par `(key, value)` ocorreria nesta cópia.
+    *   Ao final, uma nova instância de `PyHashTable` seria criada e retornada, contendo a estrutura de buckets modificada e o `_num_elements` atualizado. O objeto `self` original não seria alterado.
 
 2.  **Lógica de Redimensionamento (`_resize_if_needed`):**
     *   Atualmente, `_resize_if_needed` modifica `self._buckets` e `self._num_elements` no local e chama `self.put` recursivamente (com flag `_resizing`).
-    *   Em um estilo imutável, `_resize_if_needed` (ou uma função similar chamada por `put`) não modificaria `self`. Em vez disso, se o redimensionamento fosse necessário, ela construiria uma *nova* estrutura de baldes com a nova capacidade e re-inseriria todos os elementos da tabela original (copiada) nesta nova estrutura.
+    *   Em um estilo imutável, `_resize_if_needed` (ou uma função similar chamada por `put`) não modificaria `self`. Em vez disso, se o redimensionamento fosse necessário, ela construiria uma *nova* estrutura de buckets com a nova capacidade e re-inseriria todos os elementos da tabela original (copiada) nesta nova estrutura.
     *   O método `put` chamaria esta função de "verificar e redimensionar se necessário". Se o redimensionamento ocorresse, a função de redimensionamento retornaria uma *nova* `PyHashTable` já redimensionada. A operação `put` então procederia para inserir o novo par `(key,value)` nesta tabela (possivelmente já redimensionada), novamente de forma imutável (criando outra cópia).
 
 3.  **Fluxo do `put` Imutável:**
@@ -482,17 +482,17 @@ Para modificar `put` e o redimensionamento para um estilo funcional/imutável, o
     b.  Primeiro, criaria uma cópia preliminar da tabela atual, ou adiaria a cópia.
     c.  Verificaria o fator de carga *desta cópia (ou da tabela original se a cópia ainda não foi feita)*.
     d.  **Se o redimensionamento for necessário:**
-        i.  Uma nova `PyHashTable` ($HT_{resized}$) seria criada com maior capacidade, e todos os elementos de `self` seriam re-hasheados e inseridos (de forma imutável, um por um, ou por uma construção de baldes em lote) em $HT_{resized}$.
+        i.  Uma nova `PyHashTable` ($HT_{resized}$) seria criada com maior capacidade, e todos os elementos de `self` seriam re-hasheados e inseridos (de forma imutável, um por um, ou por uma construção de buckets em lote) em $HT_{resized}$.
         ii. A "tabela atual" para a inserção do novo par $(key, value)$ se torna $HT_{resized}$.
     e.  **Se não for necessário redimensionar (ou após o redimensionamento):**
-        i.  Uma cópia da estrutura de baldes da "tabela atual" (seja `self` ou $HT_{resized}$) é feita: `new_buckets = copy_buckets(current_table._buckets)`.
+        i.  Uma cópia da estrutura de buckets da "tabela atual" (seja `self` ou $HT_{resized}$) é feita: `new_buckets = copy_buckets(current_table._buckets)`.
         ii. O par $(key, value)$ é inserido/atualizado em `new_buckets`.
         iii. O `new_num_elements` é calculado.
-        iv. `return PyHashTable(initial_capacity=len(new_buckets), ...)` inicializado com `new_buckets` e `new_num_elements` (o construtor precisaria de um modo para aceitar baldes pré-populados e contagem).
+        iv. `return PyHashTable(initial_capacity=len(new_buckets), ...)` inicializado com `new_buckets` e `new_num_elements` (o construtor precisaria de um modo para aceitar buckets pré-populados e contagem).
 
 **Principais Alterações:**
-*   **Cópia Profunda:** Quase todas as operações "modificadoras" (`put`, `delete`, e a lógica de `resize`) precisariam começar criando cópias profundas da estrutura de baldes (e das listas de baldes) para não alterar o objeto original.
-*   **Construtor:** O `__init__` precisaria de uma forma de ser chamado internamente com uma estrutura de baldes já preenchida e a contagem de elementos, para evitar re-validar/re-copiar desnecessariamente ao criar novas instâncias a partir de modificações internas.
+*   **Cópia Profunda:** Quase todas as operações "modificadoras" (`put`, `delete`, e a lógica de `resize`) precisariam começar criando cópias profundas da estrutura de buckets (e das listas de buckets) para não alterar o objeto original.
+*   **Construtor:** O `__init__` precisaria de uma forma de ser chamado internamente com uma estrutura de buckets já preenchida e a contagem de elementos, para evitar re-validar/re-copiar desnecessariamente ao criar novas instâncias a partir de modificações internas.
 *   **Retorno de `self` ou Nova Instância:** Todos os métodos que alteram o estado retornariam uma nova instância de `PyHashTable`.
 
 Isso aumentaria significativamente a sobrecarga de memória e o tempo de execução para operações de escrita devido às cópias, mas garantiria a imutabilidade, que pode ser desejável em certos contextos (e.g., programação funcional, concorrência sem locks). A implementação mutável atual é mais eficiente para o uso típico de tabelas hash como estruturas de dados de desempenho.
@@ -555,7 +555,7 @@ def st_table_and_contained_key(draw) -> Tuple[PyHashTable[int, str], int]:
 ```
 O código de teste `test_py_hash_table.py` configura as estratégias.
 *   `st_key_type` e `st_value_type` definem estratégias para gerar chaves (inteiros) e valores (strings).
-*   `st_py_hash_table`: Uma estratégia composta para construir uma `PyHashTable` populando-a com uma sequência de operações `put`. Isso geralmente resulta em uma melhor distribuição de estados da tabela para teste do que tentar usar `st.builds` diretamente sobre a estrutura interna de baldes.
+*   `st_py_hash_table`: Uma estratégia composta para construir uma `PyHashTable` populando-a com uma sequência de operações `put`. Isso geralmente resulta em uma melhor distribuição de estados da tabela para teste do que tentar usar `st.builds` diretamente sobre a estrutura interna de buckets.
 *   `st_table_and_contained_key`: Uma estratégia composta para gerar uma `PyHashTable` não vazia e uma chave que está garantidamente contida nela. Isso é útil para testar operações como `get` e `delete` em chaves existentes. Ela reconstrói uma tabela a partir de uma lista de itens e depois amostra uma chave dessa lista.
 
 **Testes de Propriedade para os Axiomas de `HashTable` (espelhando `Map`):**
@@ -732,7 +732,7 @@ def test_HT13_deleteHT_after_putHT_different_key(k_put: int, v_put: str, ht: PyH
 ```
 Os testes acima traduzem os axiomas (HT1)-(HT13).
 *   Testes (HT1)-(HT3) para `isEmptyHT` e `sizeHT` em `emptyHT` são diretos.
-*   Teste (HT2) e (HT4-HT5) para `putHT`: Como `put` é mutável na implementação, para testar o estado *após* `put` como se fosse uma nova tabela (conforme o axioma), precisamos de uma maneira de simular a criação de uma nova tabela que é o resultado de `put`. O `test_HT2_is_empty_putHT` recria uma tabela. `test_HT4_HT5_size_putHT` faz uma cópia (de forma um pouco rudimentar, iterando sobre os baldes; uma função `clone()` na `PyHashTable` seria melhor) e então aplica `put` a essa cópia para verificar o tamanho.
+*   Teste (HT2) e (HT4-HT5) para `putHT`: Como `put` é mutável na implementação, para testar o estado *após* `put` como se fosse uma nova tabela (conforme o axioma), precisamos de uma maneira de simular a criação de uma nova tabela que é o resultado de `put`. O `test_HT2_is_empty_putHT` recria uma tabela. `test_HT4_HT5_size_putHT` faz uma cópia (de forma um pouco rudimentar, iterando sobre os buckets; uma função `clone()` na `PyHashTable` seria melhor) e então aplica `put` a essa cópia para verificar o tamanho.
 *   Testes (HT6)-(HT7) para `getHT`: `test_HT6_getHT_after_putHT_same_key` verifica que `get` após `put` com a mesma chave retorna o valor inserido. `test_HT7_getHT_after_putHT_different_key` verifica que `put` não afeta `get` para outras chaves, usando `assume` para a condição de chaves diferentes.
 *   Testes (HT8)-(HT10) para `containsKeyHT`: Seguem uma lógica similar aos de `getHT`.
 *   Testes (HT11)-(HT13) para `deleteHT`: `test_HT11_deleteHT_emptyHT` verifica o comportamento de `delete` em uma tabela vazia. `test_HT12_deleteHT_after_putHT_same_key` é complexo de testar perfeitamente com a API mutável sem um `clone()` profundo e uma comparação de tabelas completa. A versão aqui verifica a consequência principal: que a chave não está mais contida e o tamanho é consistente. `test_HT13_deleteHT_after_putHT_different_key` testa a comutatividade de `delete` (em $k_1$) e `put` (em $k \neq k_1$) recriando os estados LHS e RHS para comparação.
@@ -789,10 +789,10 @@ Este teste valida que a última inserção para uma chave prevalece, um comporta
 
 A grande vantagem de usar uma `HashTable` para implementar o TAD `Map` é seu desempenho eficiente no caso médio. No entanto, é crucial entender tanto o caso médio quanto o pior caso, e os fatores que os influenciam. A análise aqui assume uma implementação com **encadeamento separado** e uma **função de hash** que distribui as chaves razoavelmente bem.
 
-Seja $N$ o número de elementos na tabela hash e $M$ o número de baldes (tamanho do array subjacente). O **fator de carga** $\alpha = N/M$.
+Seja $N$ o número de elementos na tabela hash e $M$ o número de buckets (tamanho do array subjacente). O **fator de carga** $\alpha = N/M$.
 
 1.  **`__init__(self, initial_capacity=..., load_factor_threshold=...)`**:
-    *   Criação da lista de baldes: $O(M)$ para inicializar $M$ listas vazias.
+    *   Criação da lista de buckets: $O(M)$ para inicializar $M$ listas vazias.
     *   **Complexidade:** $O(M)$.
 
 2.  **`empty_hash_table()`**:
@@ -807,7 +807,7 @@ Seja $N$ o número de elementos na tabela hash e $M$ o número de baldes (tamanh
 4.  **`put(key, value)`**:
     *   `_resize_if_needed()`: Veja abaixo. Se não houver redimensionamento:
     *   `_get_bucket_index(key)`: $O(H_K)$.
-    *   Iterar sobre o balde (lista encadeada): No pior caso, se todas as $N$ chaves hashearem para o mesmo balde, isso é $O(N)$ (mais $N$ comparações de chave $O(E_K)$ cada, onde $E_K$ é o custo de `key.__eq__`). No caso médio, com boa distribuição, o comprimento médio do balde é $\alpha$. Então, a busca no balde é $O(\alpha \cdot E_K)$.
+    *   Iterar sobre o bucket (lista encadeada): No pior caso, se todas as $N$ chaves hashearem para o mesmo bucket, isso é $O(N)$ (mais $N$ comparações de chave $O(E_K)$ cada, onde $E_K$ é o custo de `key.__eq__`). No caso médio, com boa distribuição, o comprimento médio do bucket é $\alpha$. Então, a busca no bucket é $O(\alpha \cdot E_K)$.
     *   `bucket.append((key,value))` (se nova chave): $O(1)$ para lista encadeada.
     *   Atualizar `_num_elements`: $O(1)$.
     *   **Complexidade (sem redimensionamento):**
@@ -816,14 +816,14 @@ Seja $N$ o número de elementos na tabela hash e $M$ o número de baldes (tamanh
 
 5.  **`get(key)`**:
     *   `_get_bucket_index(key)`: $O(H_K)$.
-    *   Iterar sobre o balde: Mesma análise que `put`.
+    *   Iterar sobre o bucket: Mesma análise que `put`.
     *   **Complexidade:**
         *   **Caso Médio:** $O(1+\alpha) \approx O(1)$.
         *   **Pior Caso:** $O(N)$.
 
 6.  **`delete(key)`**:
     *   `_get_bucket_index(key)`: $O(H_K)$.
-    *   Iterar sobre o balde para encontrar e remover: Mesma análise que `put` para encontrar. Remoção de lista encadeada é $O(1)$ uma vez encontrado (se tivermos referência ao nó anterior, senão é o custo da busca).
+    *   Iterar sobre o bucket para encontrar e remover: Mesma análise que `put` para encontrar. Remoção de lista encadeada é $O(1)$ uma vez encontrado (se tivermos referência ao nó anterior, senão é o custo da busca).
     *   Atualizar `_num_elements`: $O(1)$.
     *   **Complexidade:**
         *   **Caso Médio:** $O(1+\alpha) \approx O(1)$.
@@ -837,10 +837,10 @@ Seja $N$ o número de elementos na tabela hash e $M$ o número de baldes (tamanh
 9.  **`is_empty()`**: $O(1)$ (compara `_num_elements` com 0).
 
 10. **`_resize_if_needed()` (e o redimensionamento em si):**
-    *   Criação da nova lista de baldes (tamanho $M' \approx 2M$): $O(M')$.
+    *   Criação da nova lista de buckets (tamanho $M' \approx 2M$): $O(M')$.
     *   Iterar sobre todos os $N$ elementos da tabela antiga. Para cada elemento:
-        *   Re-hashear e calcular novo índice de balde: $O(H_K)$.
-        *   Inserir na nova tabela: $O(1)$ em média (para a nova inserção no balde da nova tabela, pois a nova tabela está inicialmente vazia ou com baixo fator de carga durante o rehash).
+        *   Re-hashear e calcular novo índice de bucket: $O(H_K)$.
+        *   Inserir na nova tabela: $O(1)$ em média (para a nova inserção no bucket da nova tabela, pois a nova tabela está inicialmente vazia ou com baixo fator de carga durante o rehash).
     *   Custo total do redimensionamento: $O(M' + N \cdot H_K) \approx O(M+N)$ se $H_K=O(1)$.
     *   **Análise Amortizada:** Embora um redimensionamento seja $O(N+M)$, ele acontece com pouca frequência (e.g., quando $N$ dobra). Se o custo de $O(N+M)$ for distribuído sobre as $N$ operações `put` que levaram ao redimensionamento, o custo amortizado de `put` (incluindo redimensionamento) permanece $O(1)$ em média, desde que a capacidade aumente geometricamente (e.g., dobrando).
 
@@ -861,23 +861,23 @@ Se, em vez de encadeamento separado, uma `PyHashTable` usasse **endereçamento a
 **Resolução:**
 
 **Endereçamento Aberto com Sondagem Linear:**
-Nesta estratégia, se uma colisão ocorre no balde $i = h(key)$, a tabela sonda sequencialmente os baldes $i+1, i+2, \ldots$ (módulo $M$) até encontrar um balde vazio para inserção, ou encontrar a chave (para `get`), ou encontrar um balde vazio (indicando que a chave não está presente, para `get`).
+Nesta estratégia, se uma colisão ocorre no bucket $i = h(key)$, a tabela sonda sequencialmente os buckets $i+1, i+2, \ldots$ (módulo $M$) até encontrar um bucket vazio para inserção, ou encontrar a chave (para `get`), ou encontrar um bucket vazio (indicando que a chave não está presente, para `get`).
 
 **1. Impacto na Complexidade no Pior Caso de `get(key)`:**
-*   A sondagem linear é suscetível a um fenômeno chamado **agrupamento primário (primary clustering)**. Se várias chaves hasheiam para o mesmo índice inicial, ou para índices próximos, elas tendem a formar longas sequências contíguas de baldes ocupados.
-*   **Pior Caso para `get(key)`:** No pior caso absoluto, todas as $N$ chaves inseridas (ou um grande número delas) podem formar um único e longo cluster. Isso pode acontecer se, por exemplo, a função de hash mapear muitas chaves para o mesmo índice ou índices adjacentes, e as inserções subsequentes preencherem uma longa sequência de baldes.
-*   Ao buscar uma chave (`get(key)`), se a chave não estiver presente e o cluster cobrir uma grande parte da tabela (ou a tabela inteira, se estiver quase cheia), a sondagem linear pode ter que percorrer muitos baldes. No pior caso, pode precisar examinar até $M$ baldes (o tamanho total da tabela). Se $N$ é próximo de $M$, isso é $O(M) \approx O(N)$.
+*   A sondagem linear é suscetível a um fenômeno chamado **agrupamento primário (primary clustering)**. Se várias chaves hasheiam para o mesmo índice inicial, ou para índices próximos, elas tendem a formar longas sequências contíguas de buckets ocupados.
+*   **Pior Caso para `get(key)`:** No pior caso absoluto, todas as $N$ chaves inseridas (ou um grande número delas) podem formar um único e longo cluster. Isso pode acontecer se, por exemplo, a função de hash mapear muitas chaves para o mesmo índice ou índices adjacentes, e as inserções subsequentes preencherem uma longa sequência de buckets.
+*   Ao buscar uma chave (`get(key)`), se a chave não estiver presente e o cluster cobrir uma grande parte da tabela (ou a tabela inteira, se estiver quase cheia), a sondagem linear pode ter que percorrer muitos buckets. No pior caso, pode precisar examinar até $M$ buckets (o tamanho total da tabela). Se $N$ é próximo de $M$, isso é $O(M) \approx O(N)$.
 *   Mesmo que a chave esteja presente, mas no final de um longo cluster, a busca pode levar muitos passos.
 *   Portanto, a complexidade no **pior caso** de `get(key)` com sondagem linear ainda é **$O(N)$** (ou $O(M)$ se $M > N$). O agrupamento primário pode tornar esse pior caso mais provável ou levar a um desempenho médio ruim se o fator de carga $\alpha$ se aproximar de 1.
 
 **2. Complexidade da Implementação Correta de `delete(key)` com Sondagem Linear:**
 A operação `delete(key)` em uma tabela hash com endereçamento aberto (especialmente sondagem linear ou quadrática) é mais complexa do que com encadeamento separado.
-*   **Problema:** Simplesmente esvaziar o balde onde a chave deletada estava pode quebrar as sequências de sondagem para outras chaves que colidiram com aquele balde (ou com um balde anterior na sequência de sondagem) e foram inseridas mais adiante. Uma busca subsequente por essas outras chaves poderia parar prematuramente no balde agora vazio, concluindo erroneamente que a chave não existe.
+*   **Problema:** Simplesmente esvaziar o bucket onde a chave deletada estava pode quebrar as sequências de sondagem para outras chaves que colidiram com aquele bucket (ou com um bucket anterior na sequência de sondagem) e foram inseridas mais adiante. Uma busca subsequente por essas outras chaves poderia parar prematuramente no bucket agora vazio, concluindo erroneamente que a chave não existe.
 *   **Soluções Comuns (e sua complexidade):**
-    a.  **Marcação com "Lazy Deletion" (Exclusão Preguiçosa):** Em vez de esvaziar o balde, ele é marcado com um estado especial "deletado" (ou "túmulo", *tombstone*).
-        *   `put`: Pode reutilizar baldes marcados como "deletado".
-        *   `get`: Deve continuar sondando além dos baldes "deletados", pois a chave procurada pode estar mais adiante na sequência.
-        *   `delete`: Encontra a chave e marca o balde como "deletado".
+    a.  **Marcação com "Lazy Deletion" (Exclusão Preguiçosa):** Em vez de esvaziar o bucket, ele é marcado com um estado especial "deletado" (ou "túmulo", *tombstone*).
+        *   `put`: Pode reutilizar buckets marcados como "deletado".
+        *   `get`: Deve continuar sondando além dos buckets "deletados", pois a chave procurada pode estar mais adiante na sequência.
+        *   `delete`: Encontra a chave e marca o bucket como "deletado".
         *   **Impacto na Complexidade:** A operação `delete` em si (encontrar e marcar) tem a mesma complexidade de `get` ($O(1)$ médio, $O(N)$ pior). No entanto, a presença de muitos túmulos pode aumentar o comprimento médio das sequências de sondagem para `get` e `put` (pois eles não param a busca), efetivamente diminuindo o desempenho como se o fator de carga fosse maior. O redimensionamento pode ser usado para limpar os túmulos.
     b.  **Re-hashing de Elementos no Cluster:** Quando um elemento é deletado, os elementos subsequentes no mesmo cluster de sondagem (que poderiam ter sido colocados lá devido à presença do elemento deletado) podem precisar ser re-hasheados ou deslocados para preencher a lacuna ou para garantir que ainda possam ser encontrados.
         *   Isso pode tornar a operação `delete` potencialmente custosa, no pior caso $O(N)$ (ou $O(M)$), se um cluster longo precisar ser reajustado. A análise amortizada pode ser complexa.
@@ -894,32 +894,32 @@ Esta seção apresenta um exercício que combina aspectos teóricos e práticos 
 
 **Parte a) Teórica: Impacto da Estratégia de Redimensionamento**
 Discuta brevemente:
-1.  Por que o aumento geométrico da capacidade (e.g., dobrar) é preferível a um aumento aritmético (e.g., adicionar um número fixo de baldes) para manter o custo amortizado de `put` em $O(1)$?
+1.  Por que o aumento geométrico da capacidade (e.g., dobrar) é preferível a um aumento aritmético (e.g., adicionar um número fixo de buckets) para manter o custo amortizado de `put` em $O(1)$?
 2.  Qual é uma desvantagem potencial de sempre dobrar a capacidade? Como a escolha de tamanhos de tabela que são números primos poderia ajudar (mesmo que nossa implementação atual não faça isso)?
 
 **Parte b) Prática: Estender `PyHashTable` com Redimensionamento para Encolher**
 Atualmente, `PyHashTable` só cresce. Estenda a classe `PyHashTable[K,V]` da Seção 19.3 para incluir uma lógica de redimensionamento que também **encolhe** a tabela se o fator de carga ficar muito baixo após operações `delete`.
 1.  Modifique o método `delete` para que, após remover um elemento, ele chame um novo método (ou uma lógica estendida em `_resize_if_needed()`, talvez renomeado para `_check_and_perform_resize()`) que verifique se a tabela deve encolher.
-2.  Defina um limiar inferior para o fator de carga (e.g., `shrink_threshold = 0.25`). Se o fator de carga cair abaixo deste limiar E o número atual de baldes for maior que a `_initial_capacity`, a tabela deve ser redimensionada para, por exemplo, metade de sua capacidade atual (mas não menor que `_initial_capacity`).
+2.  Defina um limiar inferior para o fator de carga (e.g., `shrink_threshold = 0.25`). Se o fator de carga cair abaixo deste limiar E o número atual de buckets for maior que a `_initial_capacity`, a tabela deve ser redimensionada para, por exemplo, metade de sua capacidade atual (mas não menor que `_initial_capacity`).
 3.  Implemente esta lógica de encolhimento. Lembre-se que o encolhimento também requer re-hash de todos os elementos.
 
 **Parte c) Teste de Propriedade para Encolhimento**
 Escreva um teste de propriedade Hypothesis para verificar se a lógica de encolhimento está funcionando como esperado. O teste deve:
 1.  Criar uma tabela e enchê-la com um número de elementos que exceda o `_load_factor_threshold` para causar um crescimento.
 2.  Em seguida, deletar elementos suficientes para que o fator de carga caia abaixo do `shrink_threshold`.
-3.  Verificar se o número de baldes na tabela foi reduzido para o tamanho esperado (e.g., metade da capacidade após o crescimento, ou para `_initial_capacity` se metade for menor).
+3.  Verificar se o número de buckets na tabela foi reduzido para o tamanho esperado (e.g., metade da capacidade após o crescimento, ou para `_initial_capacity` se metade for menor).
 
 **Resolução:**
 
 **Parte a) Teórica: Impacto da Estratégia de Redimensionamento**
 
 1.  **Aumento Geométrico vs. Aritmético para Custo Amortizado $O(1)$:**
-    *   **Aumento Geométrico (e.g., dobrar):** Quando a tabela é redimensionada de $M$ para $2M$ baldes, o custo é aproximadamente $O(M+N)$ (onde $N \approx \alpha M$). Antes do próximo redimensionamento (para $4M$), pelo menos $N$ novas inserções (ou $M$ em termos de capacidade) devem ocorrer. O custo $O(M+N)$ do redimensionamento é "pago" por essas $N$ (ou $M$) inserções, resultando em um custo adicional constante por inserção em média (amortizado). A soma dos custos de redimensionamento forma uma série geométrica que é limitada pelo custo do último redimensionamento, levando a um custo amortizado total de $O(1)$ para `put`.
-    *   **Aumento Aritmético (e.g., adicionar $C$ baldes fixos):** Se a capacidade aumenta de $M$ para $M+C$, e isso acontece a cada $C \cdot \alpha$ inserções (aproximadamente), o custo de cada redimensionamento ainda é $O(M_i+N_i)$ (onde $M_i$ é a capacidade no $i$-ésimo redimensionamento). Se $M_i$ cresce linearmente ($M_i = M_0 + i \cdot C$), o custo total de redimensionamento sobre $k$ redimensionamentos para atingir $N$ elementos seria da ordem de $\sum O(i) = O(k^2)$. Como $k \approx N/C$, o custo total de redimensionamento seria $O(N^2)$, e o custo amortizado por inserção se tornaria $O(N)$, o que é inaceitável.
+    *   **Aumento Geométrico (e.g., dobrar):** Quando a tabela é redimensionada de $M$ para $2M$ buckets, o custo é aproximadamente $O(M+N)$ (onde $N \approx \alpha M$). Antes do próximo redimensionamento (para $4M$), pelo menos $N$ novas inserções (ou $M$ em termos de capacidade) devem ocorrer. O custo $O(M+N)$ do redimensionamento é "pago" por essas $N$ (ou $M$) inserções, resultando em um custo adicional constante por inserção em média (amortizado). A soma dos custos de redimensionamento forma uma série geométrica que é limitada pelo custo do último redimensionamento, levando a um custo amortizado total de $O(1)$ para `put`.
+    *   **Aumento Aritmético (e.g., adicionar $C$ buckets fixos):** Se a capacidade aumenta de $M$ para $M+C$, e isso acontece a cada $C \cdot \alpha$ inserções (aproximadamente), o custo de cada redimensionamento ainda é $O(M_i+N_i)$ (onde $M_i$ é a capacidade no $i$-ésimo redimensionamento). Se $M_i$ cresce linearmente ($M_i = M_0 + i \cdot C$), o custo total de redimensionamento sobre $k$ redimensionamentos para atingir $N$ elementos seria da ordem de $\sum O(i) = O(k^2)$. Como $k \approx N/C$, o custo total de redimensionamento seria $O(N^2)$, e o custo amortizado por inserção se tornaria $O(N)$, o que é inaceitável.
 
 2.  **Desvantagem de Dobrar a Capacidade e Benefício de Tamanhos Primos:**
     *   **Desvantagem de Dobrar:** Dobrar a capacidade pode levar a um uso de memória que é, em média, de $25\%$ a $50\%$ vazio (imediatamente após um redimensionamento, a tabela está $\approx \alpha/2$ cheia se $\alpha$ era o limiar). Para tabelas muito grandes, isso pode ser um desperdício significativo de memória. Além disso, se o tamanho da tabela $M$ tem muitos fatores em comum com os valores de hash (especialmente se a parte do módulo da função de hash $h(k) \pmod M$ não for robusta), a distribuição das chaves pode ser ruim.
-    *   **Benefício de Tamanhos Primos:** Usar um tamanho de tabela $M$ que é um número primo ajuda a melhorar a distribuição das chaves pelos baldes, especialmente com funções de hash simples (como divisão $h(k) \pmod M$). Um número primo $M$ tem menos probabilidade de ter fatores comuns com padrões nos dados de entrada ou nos valores de hash, reduzindo a chance de colisões sistemáticas e melhorando o desempenho da sondagem (em algumas formas de endereçamento aberto) e do encadeamento. Isso torna a função de hash modular mais eficaz em espalhar as chaves.
+    *   **Benefício de Tamanhos Primos:** Usar um tamanho de tabela $M$ que é um número primo ajuda a melhorar a distribuição das chaves pelos buckets, especialmente com funções de hash simples (como divisão $h(k) \pmod M$). Um número primo $M$ tem menos probabilidade de ter fatores comuns com padrões nos dados de entrada ou nos valores de hash, reduzindo a chance de colisões sistemáticas e melhorando o desempenho da sondagem (em algumas formas de endereçamento aberto) e do encadeamento. Isso torna a função de hash modular mais eficaz em espalhar as chaves.
 
 **Parte b) Prática: Estender `PyHashTable` com Redimensionamento para Encolher**
 
@@ -1068,7 +1068,7 @@ class PyHashTable(Generic[K, V]):
 O código `py_hash_table.py` foi modificado:
 *   O construtor `__init__` agora aceita e armazena `shrink_threshold`.
 *   `_resize_if_needed()` foi renomeado para `_check_and_perform_resize()` e sua lógica foi estendida.
-*   `_resize_table(new_capacity)` é um novo método auxiliar para encapsular a lógica de redimensionamento (criação de novos baldes e re-hash).
+*   `_resize_table(new_capacity)` é um novo método auxiliar para encapsular a lógica de redimensionamento (criação de novos buckets e re-hash).
 *   `_check_and_perform_resize()` agora verifica duas condições:
     *   **Crescimento:** Se `current_load_factor > self._load_factor_threshold`, a capacidade é dobrada.
     *   **Encolhimento:** Se `current_load_factor < self._shrink_threshold` E a capacidade atual `current_capacity` é maior que a `self._initial_capacity`, a capacidade é reduzida pela metade (mas não menor que `_initial_capacity`). A condição `new_capacity < current_capacity` garante que o encolhimento só ocorre se a nova capacidade calculada for de fato menor.
@@ -1168,7 +1168,7 @@ O teste `test_hash_table_shrinks_when_load_factor_is_low` é adicionado:
     *   Um `assume` garante que a capacidade inicial e o `shrink_threshold` são compatíveis para um teste significativo de encolhimento.
 3.  **Fase de Preenchimento (Grow):**
     *   A tabela é preenchida com `items_to_fill` (apenas chaves únicas são adicionadas para que `ht.size()` seja o número de itens únicos).
-    *   `capacity_after_fill` armazena o número de baldes após esta fase (espera-se que tenha crescido).
+    *   `capacity_after_fill` armazena o número de buckets após esta fase (espera-se que tenha crescido).
 4.  **Fase de Deleção (Shrink):**
     *   Um subconjunto de chaves existentes (`keys_to_delete`) é selecionado para deleção.
     *   Essas chaves são deletadas da tabela.
