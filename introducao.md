@@ -1,5 +1,7 @@
 
-**Introdução Geral**
+---
+# Introdução
+---
 
 No vasto e dinâmico universo da Ciência da Computação, a busca por metodologias que assegurem a construção de software não apenas funcional, mas fundamentalmente correto, robusto e manutenível, permanece como um dos desafios mais prementes e intectualmente estimulantes. À medida que a complexidade dos sistemas computacionais se expande, transcendendo desde aplicações cotidianas até infraestruturas críticas que sustentam a sociedade moderna, a necessidade de rigor e precisão no processo de desenvolvimento torna-se cada vez mais imperativa. É neste cenário que a disciplina de Tipos Abstratos de Dados (TADs) e Estruturas de Dados emerge não apenas como um estudo de técnicas de organização e manipulação de informação, mas como um campo fértil para a aplicação de princípios formais que podem elevar significativamente a qualidade e a confiabilidade do software produzido. Este livro, "Tipos Abstratos e Estruturas de Dados: Uma Abordagem Formal com Especificação Algébrica, Teoria de Categorias e Python", embarca em uma jornada ambiciosa e integrada, com o propósito de tecer uma conexão sólida e pragmática entre os fundamentos teóricos da especificação formal, a elegância abstrata da Teoria das Categorias, e a prática concreta da implementação e verificação na linguagem Python, complementada por um olhar comparativo sobre as facilidades oferecidas pela linguagem funcional Haskell.
 
